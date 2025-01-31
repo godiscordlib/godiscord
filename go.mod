@@ -1,3 +1,3 @@
-module github.com/AYn0nyme/godiscord
+module godiscord
 
 go 1.23.5
