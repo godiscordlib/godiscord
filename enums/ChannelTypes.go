@@ -7,7 +7,7 @@ const (
 	DMGroup
 	Category
 	GuildAnnouncement
-	GuildAnnouncementThread
+	GuildAnnouncementThread int = iota + 4
 	PublicThread
 	PrivateThread
 	StageVoice
