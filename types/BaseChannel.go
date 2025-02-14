@@ -1,8 +1,10 @@
 package types
 
+import "godiscord/enums"
+
 type BaseChannel struct {
 	Base
-	Type     int
+	Type     enums.ChannelType
 	GuildID  *string
 	Position *int
 	// TODO:

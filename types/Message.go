@@ -8,6 +8,7 @@ type Message struct {
 	Timestamp        string // ISO8601 timestamp
 	MentionsEveryone bool
 	UsersMentions    []User
+	RolesMentions    []string
 	// TODO:
 	// Add ChannelMentions
 	// Add RoleMentions

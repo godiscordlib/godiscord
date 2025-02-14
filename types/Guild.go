@@ -1,8 +1,6 @@
 package types
 
-import (
-	"godiscord/enums"
-)
+import "godiscord/enums"
 
 type Guild struct {
 	Base
@@ -10,9 +8,9 @@ type Guild struct {
 	IconHash                    *string
 	SplashHash                  *string
 	DiscoverySplashHash         *string
-	Owner                       *bool
+	AmIOwner                    *bool
 	OwnerID                     string
-	AFKChannelId                string
+	AFKChannelId                *string
 	AFKTimeout                  int
 	WidgetEnabled               *bool
 	WidgetChannelID             string

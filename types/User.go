@@ -4,11 +4,12 @@ type User struct {
 	Base
 	Username      string
 	Discriminator string
+	Bot           bool
 	Global_Name   *string
 	AvatarHash    *string
-	Bot           *bool
 	BannerHash    *string
 	AccentColor   *int
 	Locale        *string
 	Flags         *int
+	VerifiedBot   *bool
 }

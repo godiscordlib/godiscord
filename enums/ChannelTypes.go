@@ -1,13 +1,15 @@
 package enums
 
+type ChannelType int
+
 const (
-	TextChannel int = iota
+	TextChannel ChannelType = iota
 	DMChannel
 	VoiceChannel
 	DMGroup
 	Category
 	GuildAnnouncement
-	GuildAnnouncementThread int = iota + 4
+	GuildAnnouncementThread ChannelType = iota + 4
 	PublicThread
 	PrivateThread
 	StageVoice
