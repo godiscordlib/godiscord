@@ -1,4 +1,4 @@
-package types
+package common
 
 type User struct {
 	Base

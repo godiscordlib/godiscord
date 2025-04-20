@@ -1,6 +1,6 @@
-package types
+package common
 
-import "godiscord/enums"
+import "github.com/AYn0nyme/godiscord/internal/enums"
 
 type Role struct {
 	Base

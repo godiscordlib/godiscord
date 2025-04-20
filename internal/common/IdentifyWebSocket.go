@@ -1,4 +1,4 @@
-package types
+package common
 
 type IdentifyWebSocketData struct {
 	Token      string `json:"token"`

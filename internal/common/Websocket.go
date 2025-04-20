@@ -1,20 +1,19 @@
-package websockets
+package common
 
 import (
 	"encoding/json"
-	"godiscord/types"
 	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-const WEBSOCKET_URL = "wss://gateway.discord.gg/?v=10&encoding=json"
-
 type WebSocket struct {
 }
 
-func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan types.WebSocketPayload) {
+const WEBSOCKET_URL = "wss://gateway.discord.gg/?v=10&encoding=json"
+
+func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan WebSocketPayload) {
 	conn, _, err := websocket.DefaultDialer.Dial(WEBSOCKET_URL, nil)
 	if err != nil {
 		log.Fatalln(err)
@@ -27,14 +26,14 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 		log.Fatalln(err)
 	}
 
-	var objMsg types.WebSocketPayload
+	var objMsg WebSocketPayload
 	if err := json.Unmarshal(message, &objMsg); err != nil {
 		log.Fatalln(err)
 	}
 	if objMsg.OP != 10 {
 		log.Fatalln("First message isn't an Hello (op 10)")
 	}
-	var helloWebSocket types.HelloWebSocket
+	var helloWebSocket HelloWebSocket
 	if err := json.Unmarshal(objMsg.Data, &helloWebSocket); err != nil {
 		log.Fatalln(err)
 	}
@@ -43,7 +42,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 	go func() {
 		for {
 			<-heartbeat_ticker.C
-			heartbeat := &types.WebSocketPayload{
+			heartbeat := &WebSocketPayload{
 				OP:   1,
 				Data: nil,
 			}
@@ -53,7 +52,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 		}
 	}()
 
-	identifyData := &types.IdentifyWebSocketData{
+	identifyData := &IdentifyWebSocketData{
 		Token: BotToken,
 		Properties: struct {
 			OS      string `json:"os"`
@@ -66,7 +65,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 		},
 		Intents: Intents,
 	}
-	identifyPayload := &types.WebSocketPayload{
+	identifyPayload := &WebSocketPayload{
 		OP:   2,
 		Data: marshal(identifyData),
 	}
@@ -75,7 +74,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 		log.Fatalln(err)
 	}
 
-	var discordRes types.WebSocketPayload
+	var discordRes WebSocketPayload
 
 	for {
 		_, msg, err := conn.ReadMessage()

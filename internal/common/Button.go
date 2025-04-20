@@ -1,4 +1,4 @@
-package types
+package common
 
 type Button struct {
 	Type     int
