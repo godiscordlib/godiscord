@@ -52,11 +52,10 @@ func (m Message) Reply(Client Client, Data any) {
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
 
-		httpClient := http.Client{}
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
 		request.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		request.Header.Add("Content-Type", "application/json")
-		httpClient.Do(request)
+		http.DefaultClient.Do(request)
 	case MessageData:
 		message := payloadMessage{
 			Content: data.Content,
@@ -69,10 +68,9 @@ func (m Message) Reply(Client Client, Data any) {
 
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
-		httpClient := http.Client{}
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
 		request.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		request.Header.Add("Content-Type", "application/json")
-		httpClient.Do(request)
+		http.DefaultClient.Do(request)
 	}
 }

@@ -1,16 +1,21 @@
 package common
 
 type Embed struct {
-	Title       string  `json:"title"`
-	Type        string  `json:"type"`
-	Description string  `json:"description"`
-	URL         string  `json:"url"`
-	Timestamp   string  `json:"timestamp"` // ISO8601 timestamp
-	Color       int     `json:"color"`
-	Footer      footer  `json:"footer"`
-	Fields      []field `json:"fields"`
+	Title       string    `json:"title"`
+	Type        string    `json:"type"`
+	Description string    `json:"description"`
+	URL         string    `json:"url"`
+	Thumbnail   thumnbail `json:"thumbnail"`
+	Timestamp   string    `json:"timestamp"` // ISO8601 timestamp
+	Color       int       `json:"color"`
+	Footer      footer    `json:"footer"`
+	Fields      []field   `json:"fields"`
 }
-
+type thumnbail struct {
+	URL    string `json:"url"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
+}
 type footer struct {
 	Text    string `json:"text"`
 	IconURL string `json:"icon_url"`
@@ -52,5 +57,11 @@ func (e Embed) SetFooter(Text, IconURL string) Embed {
 }
 func (e Embed) AddField(Name, Value string, Inline bool) Embed {
 	e.Fields = append(e.Fields, field{Name: Name, Value: Value, Inline: Inline})
+	return e
+}
+func (e Embed) SetThumbnail(URL string, Height, Width int) Embed {
+	e.Thumbnail.URL = URL
+	e.Thumbnail.Height = Height
+	e.Thumbnail.Width = Width
 	return e
 }
