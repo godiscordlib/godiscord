@@ -3,6 +3,8 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 )
 
 type Client struct {
@@ -44,11 +46,54 @@ func (c Client) Connect() {
 		case "MESSAGE_CREATE":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
+			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			if err != nil && ptr_channel == nil {
+				panic(err)
+			}
+			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_CREATE", message)
+		case "MESSAGE_EDIT":
+			var message Message
+			json.Unmarshal(payload.Data, &message)
+			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			if err != nil && ptr_channel == nil {
+				panic(err)
+			}
+			message.Channel = *ptr_channel
+			c.Emit("MESSAGE_EDIT", message)
+		case "MESSAGE_REACTION_ADD":
+			var message Message
+			json.Unmarshal(payload.Data, &message)
+			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			if err != nil && ptr_channel == nil {
+				panic(err)
+			}
+			message.Channel = *ptr_channel
+			c.Emit("MESSAGE_REACTION_ADD", message)
 		default:
 			fmt.Println(payload.EventName)
 		}
 	}
+}
+
+func (c Client) GetChannelByID(ID string) (*TextChannel, error) {
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s/channels/%s", API_URL, ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bot %s", c.Token))
+	res, err := http.DefaultClient.Do(request)
+	if err != nil || res.StatusCode != 200 {
+		return nil, err
+	}
+	body_in_bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var channel TextChannel
+	json.Unmarshal(body_in_bytes, &channel)
+	return &channel, nil
 }
 
 func toString(value interface{}) string {

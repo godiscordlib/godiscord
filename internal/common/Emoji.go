@@ -2,11 +2,11 @@ package common
 
 type Emoji struct {
 	Base
-	Name               string
-	Animated           bool
-	AllowedRoles       []Role
-	Author             User
-	RequireColons      bool
-	IntegrationManaged bool
-	Usable             bool
+	Name               string `json:"name"`
+	Animated           bool   `json:"animated"`
+	AllowedRoles       []Role `json:"roles"`
+	Author             User   `json:"user"`
+	RequireColons      bool   `json:"require_colon"`
+	IntegrationManaged bool   `json:"managed"`
+	Usable             bool   `json:"available"`
 }

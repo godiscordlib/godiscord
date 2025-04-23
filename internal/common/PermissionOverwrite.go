@@ -2,7 +2,7 @@ package common
 
 type PermissionOverwrite struct {
 	Base
-	Type  int
-	Allow int
-	Deny  int
+	Type  int    `json:"type"`
+	Allow string `json:"allow"`
+	Deny  string `json:"deny"`
 }

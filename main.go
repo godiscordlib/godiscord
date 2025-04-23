@@ -13,13 +13,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Client := client.NewClient(string(Token), 33281)
+	Client := client.NewClient(string(Token), 34305)
 	Client.On("READY", func(args ...interface{}) {
 		c := args[0].(common.Client)
 		fmt.Println(c.Username, "is ready")
 	})
 	Client.On("MESSAGE_CREATE", func(args ...interface{}) {
-		// Message := args[0].(common.Message)
+		Message := args[0].(common.Message)
+		if Message.Author.Bot {
+			return
+		}
+		Message.Reply(Client, Message.Content)
 	})
 	Client.Connect()
 }
