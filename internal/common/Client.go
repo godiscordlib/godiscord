@@ -52,7 +52,7 @@ func (c Client) Connect() {
 			}
 			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_CREATE", message)
-		case "MESSAGE_EDIT":
+		case "MESSAGE_UPDATE":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
 			ptr_channel, err := c.GetChannelByID(message.ChannelID)

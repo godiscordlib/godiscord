@@ -25,5 +25,12 @@ func main() {
 		}
 		Message.React(Client, '🧙')
 	})
+	Client.On("MESSAGE_EDIT", func(args ...interface{}) {
+		Message := args[0].(common.Message)
+		if Message.Author.Bot {
+			return
+		}
+		Message.RemoveReact(Client, '🧙')
+	})
 	Client.Connect()
 }

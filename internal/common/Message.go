@@ -185,6 +185,58 @@ func (m Message) React(Client Client, Emoticon any) {
 		panic("Cannot react with another type than: rune (real emoji), string (custom emoji) or emoji object.")
 	}
 }
+func (m Message) RemoveReact(Client Client, Emoticon any) {
+	switch emoji := Emoticon.(type) {
+	case rune:
+		if !IsEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(string(emoji))), nil)
+		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+
+	case string:
+		if !IsCustomEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(strings.Split(emoji, ":")[1]+":"+strings.TrimSuffix(strings.Split(emoji, ":")[2], ">"))), nil)
+		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	case Emoji:
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(fmt.Sprintf("%s:%s", emoji.Name, emoji.ID))), nil)
+		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	default:
+		panic("Cannot remove reaction with another type than: rune (real emoji), string (custom emoji) or emoji object.")
+	}
+}
 
 func IsEmoji(char rune) bool {
 	for _, rt := range emojiRanges {
