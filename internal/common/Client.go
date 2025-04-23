@@ -65,8 +65,11 @@ func (c Client) Connect() {
 			var message Message
 			json.Unmarshal(payload.Data, &message)
 			ptr_channel, err := c.GetChannelByID(message.ChannelID)
-			if err != nil && ptr_channel == nil {
+			if err != nil {
 				panic(err)
+			}
+			if ptr_channel == nil {
+				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_REACTION_ADD", message)

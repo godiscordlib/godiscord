@@ -23,7 +23,7 @@ func main() {
 		if Message.Author.Bot {
 			return
 		}
-		Message.Reply(Client, Message.Content)
+		Message.React(Client, '🧙')
 	})
 	Client.Connect()
 }
