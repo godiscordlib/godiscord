@@ -1,6 +1,9 @@
 package common
 
 type BaseInteraction struct {
-	Type       int
-	Components []BaseInteraction
+	Type int `json:"type"`
+}
+
+type BaseComponent interface {
+	GetType() int
 }

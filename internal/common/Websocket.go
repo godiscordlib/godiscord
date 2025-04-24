@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -59,7 +60,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 			Browser string `json:"browser"`
 			Device  string `json:"device"`
 		}{
-			OS:      "linux",
+			OS:      runtime.GOOS,
 			Browser: "godiscord",
 			Device:  "godiscord",
 		},

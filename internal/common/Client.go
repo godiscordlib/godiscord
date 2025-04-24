@@ -22,14 +22,14 @@ func (c Client) Connect() {
 	for payload := range websocketChannel {
 		switch payload.EventName {
 		case "READY":
-			var thing map[string]interface{}
+			var thing map[string]any
 			err := json.Unmarshal(payload.Data, &thing)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			var userData map[string]interface{}
-			userData = thing["user"].(map[string]interface{})
+			var userData map[string]any
+			userData = thing["user"].(map[string]any)
 			c.User = &User{
 				Base: Base{
 					ID: toString(userData["id"]),
@@ -47,8 +47,11 @@ func (c Client) Connect() {
 			var message Message
 			json.Unmarshal(payload.Data, &message)
 			ptr_channel, err := c.GetChannelByID(message.ChannelID)
-			if err != nil && ptr_channel == nil {
+			if err != nil {
 				panic(err)
+			}
+			if ptr_channel == nil {
+				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_CREATE", message)
@@ -56,8 +59,11 @@ func (c Client) Connect() {
 			var message Message
 			json.Unmarshal(payload.Data, &message)
 			ptr_channel, err := c.GetChannelByID(message.ChannelID)
-			if err != nil && ptr_channel == nil {
+			if err != nil {
 				panic(err)
+			}
+			if ptr_channel == nil {
+				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_EDIT", message)
@@ -84,7 +90,7 @@ func (c Client) GetChannelByID(ID string) (*TextChannel, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Add("Authorization", fmt.Sprintf("Bot %s", c.Token))
+	request.Header.Set("Authorization", fmt.Sprintf("Bot %s", c.Token))
 	res, err := http.DefaultClient.Do(request)
 	if err != nil || res.StatusCode != 200 {
 		return nil, err

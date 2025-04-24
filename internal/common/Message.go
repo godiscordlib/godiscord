@@ -52,30 +52,34 @@ var emojiRanges = []unicode.RangeTable{
 type Message struct {
 	Base
 	Channel          TextChannel
-	ChannelID        string   `json:"channel_id"`
-	Author           User     `json:"author"`
-	Content          string   `json:"content"`
-	Timestamp        string   `json:"timestamp"` // ISO8601 timestamp
-	MentionsEveryone bool     `json:"mention_everyone"`
-	UsersMentions    []User   `json:"mentions"`
-	RolesMentions    []string `json:"mention_roles"`
+	ChannelID        string      `json:"channel_id"`
+	Author           User        `json:"author"`
+	Content          string      `json:"content"`
+	Timestamp        string      `json:"timestamp"` // ISO8601 timestamp
+	MentionsEveryone bool        `json:"mention_everyone"`
+	UsersMentions    []User      `json:"mentions"`
+	RolesMentions    []string    `json:"mention_roles"`
+	Components       []ActionRow `json:"components"`
+	Reactions        []Reaction  `json:"reactions"`
+	Embeds           []Embed     `json:"embeds"`
+	Pinned           bool        `json:"pinned"`
+	Type             int         `json:"type"`
+	Flags            int         `json:"flags"`
 	// TODO: Fix this
 	// ChannelMentions  []ChannelMention `json:"mention_channels"`
-	Reactions []Reaction `json:"reactions"`
-	Embeds    []Embed    `json:"embeds"`
-	Pinned    bool       `json:"pinned"`
-	Type      int        `json:"type"`
-	Flags     int        `json:"flags"`
 }
 type MessageData struct {
-	Content string  `json:"content"`
-	Embeds  []Embed `json:"embeds"`
-	Flags   int     `json:"flags"`
+	Content    string      `json:"content"`
+	Embeds     []Embed     `json:"embeds"`
+	Flags      int         `json:"flags"`
+	Components []ActionRow `json:"components"`
 }
 type payloadMessage struct {
-	Content   string                   `json:"content"`
-	Embeds    []Embed                  `json:"embeds"`
-	Reference *payloadMessageReference `json:"message_reference,omitempty"`
+	Content    string                   `json:"content"`
+	Embeds     []Embed                  `json:"embeds"`
+	Flags      int                      `json:"flags"`
+	Components []ActionRow              `json:"components"`
+	Reference  *payloadMessageReference `json:"message_reference,omitempty"`
 }
 type payloadMessageReference struct {
 	ID   string `json:"message_id"`
@@ -99,13 +103,15 @@ func (m Message) Reply(Client Client, Data any) {
 		json.NewEncoder(&payload).Encode(message)
 
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
-		request.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
-		request.Header.Add("Content-Type", "application/json")
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Content-Type", "application/json")
 		http.DefaultClient.Do(request)
 	case MessageData:
 		message := payloadMessage{
-			Content: data.Content,
-			Embeds:  data.Embeds,
+			Content:    data.Content,
+			Embeds:     data.Embeds,
+			Components: data.Components,
+			Flags:      data.Flags,
 			Reference: &payloadMessageReference{
 				ID:   m.ID,
 				Type: 0,
@@ -115,15 +121,57 @@ func (m Message) Reply(Client Client, Data any) {
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
-		request.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
-		request.Header.Add("Content-Type", "application/json")
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Content-Type", "application/json")
+		res, err := http.DefaultClient.Do(request)
+		fmt.Println(res, err)
+	}
+}
+func (m Message) Post(Client Client) {
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/%s/crosspost", API_URL, m.ChannelID, m.ID), nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(res)
+}
+
+func (m Message) Edit(Client Client, Data any) {
+	switch data := Data.(type) {
+	case string:
+		message := payloadMessage{
+			Content: data,
+		}
+
+		var payload bytes.Buffer
+		json.NewEncoder(&payload).Encode(message)
+
+		request, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/channels/%s/messages/%s", API_URL, m.ChannelID, m.ID), &payload)
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Content-Type", "application/json")
+		http.DefaultClient.Do(request)
+	case MessageData:
+		message := payloadMessage{
+			Content: data.Content,
+			Embeds:  data.Embeds,
+		}
+
+		var payload bytes.Buffer
+		json.NewEncoder(&payload).Encode(message)
+		request, _ := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/channels/%s/messages/%s", API_URL, m.ChannelID, m.ID), &payload)
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Content-Type", "application/json")
 		http.DefaultClient.Do(request)
 	}
 }
 
 func (m Message) Delete(Client Client) {
 	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s", API_URL, m.ChannelID, m.ID), nil)
-	req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 	if err != nil {
 		panic(err)
 	}
@@ -140,7 +188,7 @@ func (m Message) React(Client Client, Emoticon any) {
 			panic("Invalid emoji")
 		}
 		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(string(emoji))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
@@ -157,7 +205,7 @@ func (m Message) React(Client Client, Emoticon any) {
 			panic("Invalid emoji")
 		}
 		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(strings.Split(emoji, ":")[1]+":"+strings.TrimSuffix(strings.Split(emoji, ":")[2], ">"))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
@@ -170,7 +218,7 @@ func (m Message) React(Client Client, Emoticon any) {
 		}
 	case Emoji:
 		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(fmt.Sprintf("%s:%s", emoji.Name, emoji.ID))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
@@ -185,6 +233,7 @@ func (m Message) React(Client Client, Emoticon any) {
 		panic("Cannot react with another type than: rune (real emoji), string (custom emoji) or emoji object.")
 	}
 }
+
 func (m Message) RemoveReact(Client Client, Emoticon any) {
 	switch emoji := Emoticon.(type) {
 	case rune:
@@ -192,7 +241,7 @@ func (m Message) RemoveReact(Client Client, Emoticon any) {
 			panic("Invalid emoji")
 		}
 		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(string(emoji))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
@@ -209,7 +258,7 @@ func (m Message) RemoveReact(Client Client, Emoticon any) {
 			panic("Invalid emoji")
 		}
 		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(strings.Split(emoji, ":")[1]+":"+strings.TrimSuffix(strings.Split(emoji, ":")[2], ">"))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
@@ -222,7 +271,125 @@ func (m Message) RemoveReact(Client Client, Emoticon any) {
 		}
 	case Emoji:
 		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(fmt.Sprintf("%s:%s", emoji.Name, emoji.ID))), nil)
-		req.Header.Add("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	default:
+		panic("Cannot remove reaction with another type than: rune (real emoji), string (custom emoji) or emoji object.")
+	}
+}
+
+func (m Message) RemoveAllReact(Client Client) {
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions", API_URL, m.ChannelID, m.ID), nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+	_, err = http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (m Message) RemoveEmojiReact(Client Client, Emoticon any) {
+	switch emoji := Emoticon.(type) {
+	case rune:
+		if !IsEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/@me", API_URL, m.ChannelID, m.ID, url.PathEscape(string(emoji))), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+
+	case string:
+		if !IsCustomEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s", API_URL, m.ChannelID, m.ID, url.PathEscape(strings.Split(emoji, ":")[1]+":"+strings.TrimSuffix(strings.Split(emoji, ":")[2], ">"))), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	case Emoji:
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s", API_URL, m.ChannelID, m.ID, url.PathEscape(fmt.Sprintf("%s:%s", emoji.Name, emoji.ID))), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	default:
+		panic("Cannot remove reaction with another type than: rune (real emoji), string (custom emoji) or emoji object.")
+	}
+}
+
+func (m Message) RemoveReactFromUser(Client Client, UserID string, Emoticon any) {
+	switch emoji := Emoticon.(type) {
+	case rune:
+		if !IsEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/%s", API_URL, m.ChannelID, m.ID, url.PathEscape(string(emoji)), UserID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+
+	case string:
+		if !IsCustomEmoji(emoji) {
+			panic("Invalid emoji")
+		}
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/%s", API_URL, m.ChannelID, m.ID, url.PathEscape(strings.Split(emoji, ":")[1]+":"+strings.TrimSuffix(strings.Split(emoji, ":")[2], ">")), UserID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		if err != nil {
+			panic(err)
+		}
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		if res.StatusCode != 204 {
+			panic(fmt.Sprintf("An error has occured. Status code: %d", res.StatusCode))
+		}
+	case Emoji:
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/channels/%s/messages/%s/reactions/%s/%s", API_URL, m.ChannelID, m.ID, url.PathEscape(fmt.Sprintf("%s:%s", emoji.Name, emoji.ID)), UserID), nil)
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		if err != nil {
 			panic(err)
 		}
