@@ -14,18 +14,18 @@ func main() {
 		panic(err)
 	}
 	Client := client.NewClient(string(Token), 34305)
-	Client.On("READY", func(args ...interface{}) {
+	Client.On("READY", func(args ...any) {
 		c := args[0].(common.Client)
 		fmt.Println(c.Username, "is ready")
 	})
-	Client.On("MESSAGE_CREATE", func(args ...interface{}) {
+	Client.On("MESSAGE_CREATE", func(args ...any) {
 		Message := args[0].(common.Message)
 		if Message.Author.Bot {
 			return
 		}
 		Message.React(Client, '🧙')
 	})
-	Client.On("MESSAGE_EDIT", func(args ...interface{}) {
+	Client.On("MESSAGE_EDIT", func(args ...any) {
 		Message := args[0].(common.Message)
 		if Message.Author.Bot {
 			return
