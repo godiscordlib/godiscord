@@ -1,5 +1,7 @@
 package common
 
+import "strconv"
+
 type Embed struct {
 	Title       string    `json:"title"`
 	Type        string    `json:"type"`
@@ -46,8 +48,12 @@ func (e Embed) SetTimestamp(Timestamp string) Embed {
 	e.Timestamp = Timestamp
 	return e
 }
-func (e Embed) SetColor(Color int) Embed {
-	e.Color = Color
+func (e Embed) SetColor(Color string) Embed {
+	color_in_int, err := strconv.ParseInt(Color, 16, 64)
+	if err != nil {
+		panic(err)
+	}
+	e.Color = int(color_in_int)
 	return e
 }
 func (e Embed) SetFooter(Text, IconURL string) Embed {

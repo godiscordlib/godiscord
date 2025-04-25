@@ -21,7 +21,10 @@ func main() {
 	})
 	Client.On("MESSAGE_CREATE", func(args ...any) {
 		message := args[0].(common.Message)
-		message_args := strings.Fields(message.Content)[1:]
+		var message_args []string
+		if len(strings.Fields(message.Content)) > 1 {
+			message_args = strings.Fields(message.Content)[1:]
+		}
 		if message.Author.Bot {
 			return
 		}
