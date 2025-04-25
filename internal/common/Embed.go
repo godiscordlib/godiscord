@@ -48,8 +48,10 @@ func (e Embed) SetTimestamp(Timestamp string) Embed {
 	e.Timestamp = Timestamp
 	return e
 }
-func (e Embed) SetColor(Color string) Embed {
-	color_in_int, err := strconv.ParseInt(Color, 16, 64)
+
+// Set the color of the embed from Hex Code. Don't include the #
+func (e Embed) SetColor(HexColor string) Embed {
+	color_in_int, err := strconv.ParseInt(HexColor, 16, 64)
 	if err != nil {
 		panic(err)
 	}
