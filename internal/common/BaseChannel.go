@@ -11,4 +11,13 @@ type BaseChannel struct {
 	Position             int                   `json:"position"`
 	Topic                string                `json:"topic"`
 	Flags                int                   `json:"flags"`
+	Guild                Guild
+}
+
+type Channel interface {
+	GetType() enums.ChannelType
+}
+
+func (bd BaseChannel) GetType() enums.ChannelType {
+	return bd.Type
 }

@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 type TextChannel struct {
@@ -16,7 +18,7 @@ type TextChannel struct {
 	CategoryID    string
 }
 
-func (t TextChannel) Send(Client Client, Data any) Message {
+func (t TextChannel) Send(Client Client, Data any) (*Message, error) {
 	switch data := Data.(type) {
 	case string:
 		message := payloadMessage{
@@ -45,45 +47,45 @@ func (t TextChannel) Send(Client Client, Data any) Message {
 	}
 	get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, 1), nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 	var res_message []Message
 	get_messages_res, err := http.DefaultClient.Do(get_messages_req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer get_messages_res.Body.Close()
 	get_messages_body, err := io.ReadAll(get_messages_res.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if err := json.Unmarshal(get_messages_body, &res_message); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return res_message[0]
+	return &res_message[0], nil
 }
 
-func (t TextChannel) BulkDelete(Client Client, Messages any) {
+func (t TextChannel) BulkDelete(Client Client, Messages any) error {
 	switch messages_for_req := Messages.(type) {
 	case int:
 		get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, messages_for_req), nil)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		var res_messages []Message
 		get_messages_res, err := http.DefaultClient.Do(get_messages_req)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		defer get_messages_res.Body.Close()
 		get_messages_body, err := io.ReadAll(get_messages_res.Body)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		if err := json.Unmarshal(get_messages_body, &res_messages); err != nil {
-			panic(err)
+			return err
 		}
 		var messages_ids []string
 		for _, v := range res_messages {
@@ -94,38 +96,38 @@ func (t TextChannel) BulkDelete(Client Client, Messages any) {
 		}
 		req_body_bytes, err := json.Marshal(messages_for_req_)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		req_body := bytes.NewReader(req_body_bytes)
 
 		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/bulk-delete", API_URL, t.ID), req_body)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		if res.StatusCode != 204 {
-			panic(fmt.Sprintf("Error while bulk deleting, got status code %d", res.StatusCode))
+			return fmt.Errorf("error: got status code %d while bulk deleting instead of 204", res.StatusCode)
 		}
 	case []string:
 		req_data := fmt.Sprintf(`{"messages":[%s]}`, strings.Join(messages_for_req, ","))
 		req_body := bytes.NewReader([]byte(req_data))
 		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/bulk-delete", API_URL, t.ID), req_body)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		if res.StatusCode != 204 {
-			panic(fmt.Sprintf("Error while bulk deleting, got status code %d", res.StatusCode))
+			return fmt.Errorf("error: got status code %d while bulk deleting instead of 204", res.StatusCode)
 		}
 	case []Message:
 		var messages_ids []string
@@ -136,7 +138,7 @@ func (t TextChannel) BulkDelete(Client Client, Messages any) {
 		req_body := bytes.NewReader([]byte(req_data))
 		req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/bulk-delete", API_URL, t.ID), req_body)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
@@ -145,9 +147,14 @@ func (t TextChannel) BulkDelete(Client Client, Messages any) {
 			panic(err)
 		}
 		if res.StatusCode != 204 {
-			panic(fmt.Sprintf("Error while bulk deleting, got status code %d", res.StatusCode))
+			return fmt.Errorf("error: got status code %d while bulk deleting instead of 204", res.StatusCode)
 		}
 	default:
-		panic("Wrong type of messages to bulk delete.")
+		return fmt.Errorf("error: wrong type using bulk delete")
 	}
+	return nil
+}
+
+func (t TextChannel) GetType() enums.ChannelType {
+	return enums.TextChannel
 }

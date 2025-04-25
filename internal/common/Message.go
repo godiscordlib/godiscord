@@ -88,7 +88,7 @@ type payloadMessageReference struct {
 
 const API_URL = "https://discord.com/api/v10"
 
-func (m Message) Reply(Client Client, Data any) {
+func (m Message) Reply(Client Client, Data any) error {
 	switch data := Data.(type) {
 	case string:
 		message := payloadMessage{
@@ -102,10 +102,19 @@ func (m Message) Reply(Client Client, Data any) {
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
 
-		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
+		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
+		if err != nil {
+			return err
+		}
 		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		request.Header.Set("Content-Type", "application/json")
-		http.DefaultClient.Do(request)
+		res, err := http.DefaultClient.Do(request)
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != 200 {
+			return fmt.Errorf("error: got status %d instead of 200 while replying to message", res.StatusCode)
+		}
 	case MessageData:
 		message := payloadMessage{
 			Content:    data.Content,
@@ -120,14 +129,23 @@ func (m Message) Reply(Client Client, Data any) {
 
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
-		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
+		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
+		if err != nil {
+			return err
+		}
 		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
 		request.Header.Set("Content-Type", "application/json")
 		res, err := http.DefaultClient.Do(request)
-		fmt.Println(res, err)
+		if err != nil {
+			return err
+		}
+		if res.StatusCode != 200 {
+			return fmt.Errorf("error: got status %d instead of 200 while replying to message", res.StatusCode)
+		}
 	}
+	return nil
 }
-func (m Message) Post(Client Client) {
+func (m Message) Post(Client Client) error {
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/%s/crosspost", API_URL, m.ChannelID, m.ID), nil)
 	if err != nil {
 		panic(err)
@@ -135,9 +153,12 @@ func (m Message) Post(Client Client) {
 	req.Header.Set("Authorization", "Bot "+Client.Token)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	fmt.Println(res)
+	if res.StatusCode != 200 {
+		return fmt.Errorf("error: got status code %d while crossposting message", res.StatusCode)
+	}
+	return nil
 }
 
 func (m Message) Edit(Client Client, Data any) {

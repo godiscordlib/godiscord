@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 type Client struct {
@@ -15,7 +17,7 @@ type Client struct {
 	Intents int
 }
 
-func (c Client) Connect() {
+func (c Client) Connect() error {
 	websocket := WebSocket{}
 	websocketChannel := make(chan WebSocketPayload)
 	go websocket.Connect(c.Token, c.Intents, websocketChannel)
@@ -25,8 +27,7 @@ func (c Client) Connect() {
 			var thing map[string]any
 			err := json.Unmarshal(payload.Data, &thing)
 			if err != nil {
-				fmt.Println(err)
-				return
+				return err
 			}
 			var userData map[string]any
 			userData = thing["user"].(map[string]any)
@@ -46,9 +47,9 @@ func (c Client) Connect() {
 		case "MESSAGE_CREATE":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			if ptr_channel == nil {
 				ptr_channel = &TextChannel{}
@@ -58,9 +59,9 @@ func (c Client) Connect() {
 		case "MESSAGE_UPDATE":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			if ptr_channel == nil {
 				ptr_channel = &TextChannel{}
@@ -70,9 +71,9 @@ func (c Client) Connect() {
 		case "MESSAGE_REACTION_ADD":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetChannelByID(message.ChannelID)
+			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
 			if err != nil {
-				panic(err)
+				return err
 			}
 			if ptr_channel == nil {
 				ptr_channel = &TextChannel{}
@@ -83,14 +84,15 @@ func (c Client) Connect() {
 			fmt.Println(payload.EventName)
 		}
 	}
+	return nil
 }
 
-func (c Client) GetChannelByID(ID string) (*TextChannel, error) {
+func (c Client) GetTextChannelByID(ID string) (*TextChannel, error) {
 	request, err := http.NewRequest("GET", fmt.Sprintf("%s/channels/%s", API_URL, ID), nil)
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Authorization", fmt.Sprintf("Bot %s", c.Token))
+	request.Header.Set("Authorization", "Bot "+c.Token)
 	res, err := http.DefaultClient.Do(request)
 	if err != nil || res.StatusCode != 200 {
 		return nil, err
@@ -102,10 +104,40 @@ func (c Client) GetChannelByID(ID string) (*TextChannel, error) {
 	defer res.Body.Close()
 	var channel TextChannel
 	json.Unmarshal(body_in_bytes, &channel)
+	if channel.Type != enums.TextChannel {
+		return nil, fmt.Errorf("error: Channel is not a TextChannel")
+	}
+
+	guild, err := c.GetGuildByID(channel.GuildID)
+	if err != nil {
+		return nil, err
+	}
+	channel.Guild = *guild
+
 	return &channel, nil
 }
 
-func toString(value interface{}) string {
+func (c Client) GetGuildByID(ID string) (*Guild, error) {
+	var guild Guild
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s/guilds/%s", API_URL, ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Authorization", "Bot "+c.Token)
+	res, err := http.DefaultClient.Do(request)
+	if err != nil || res.StatusCode != 200 {
+		return nil, err
+	}
+	body_in_bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	json.Unmarshal(body_in_bytes, &guild)
+	return &guild, nil
+}
+
+func toString(value any) string {
 	if str, ok := value.(string); ok {
 		return str
 	}
@@ -115,14 +147,14 @@ func toString(value interface{}) string {
 	return ""
 }
 
-func toStringPtr(value interface{}) *string {
+func toStringPtr(value any) *string {
 	if str, ok := value.(string); ok {
 		return &str
 	}
 	return nil
 }
 
-func toIntPtr(value interface{}) *int {
+func toIntPtr(value any) *int {
 	if num, ok := value.(float64); ok {
 		n := int(num)
 		return &n
@@ -130,7 +162,7 @@ func toIntPtr(value interface{}) *int {
 	return nil
 }
 
-func toBoolPtr(value interface{}) *bool {
+func toBoolPtr(value any) *bool {
 	if b, ok := value.(bool); ok {
 		return &b
 	}
