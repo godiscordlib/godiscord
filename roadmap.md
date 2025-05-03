@@ -3,8 +3,9 @@
 ## ✅ Message
 
 ## 🛠 Guild
--   ❌ Create Guild
+-   ✅ Create Guild
 -   ✅ Get Guild
+-   ✅ Leave Guild
 -   ❌ Get Guild Preview
 -   ❌ Edit Guild
 -   ❌ Delete Guild
@@ -20,7 +21,7 @@
 -   ❌ Edit Bot GuildMember
 -   ❌ Get Guild Ban(s)
 -   ✅ Create Ban
--   ❌ Unban
+-   ✅ Unban
 -   ❌ Bulk Ban
 -   ❌ Get Role(s)
 -   ❌ Create Role
@@ -32,5 +33,5 @@
 -   ❌ Get Integrations
 -   ❌ Delete Integrations
 -   ❌ Guild Widget things
--   ❌ Get VanityURL
+-   ✅ Get VanityURL
 -   ❌ Some welcome things

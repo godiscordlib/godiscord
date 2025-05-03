@@ -37,8 +37,63 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
+			} else {
+				err := message.Channel.Guild.Ban(Client, message_args[0], 0)
+				if err != nil {
+					panic(err)
+				}
 			}
+			message.Reply(Client, "Banned the user :)")
+		} else if strings.HasPrefix(message.Content, "!cg") {
+			guild, err := Client.CreateGuild(common.CreateGuildOptions{
+				Name: "Godiscord",
+			})
+			fmt.Println(guild)
+			if err != nil {
+				panic(err)
+			}
+			if guild == nil {
+				panic("error: guild is nil")
+			}
+			fmt.Printf("Created guild %s with success!\n", guild.Name)
+		} else if strings.HasPrefix(message.Content, "!lg") {
+			if message.Author.ID != "943580965446512661" {
+				message.Reply(Client, "You're not my owner bozo")
+				return
+			}
+			fmt.Println("im here")
+			err := Client.LeaveGuild(message_args[0])
+			if err == nil {
+				message.Reply(Client, "I left the server successfully")
+			} else {
+				panic(err)
+			}
+		} else if strings.HasPrefix(message.Content, "!unban") {
+			if len(message_args) < 1 {
+				message.Reply(Client, "noob not enof arguments")
+			}
+			err := message.Channel.Guild.UnBan(Client, message_args[0], 0)
+			if err != nil {
+				panic(err)
+			}
+			message.Reply(Client, "Unbanned user :(")
+		} else if strings.HasPrefix(message.Content, "!eg") {
+			if message.Author.ID != "943580965446512661" {
+				message.Reply(Client, "You're not my owner bozo")
+				return
+			}
+			_, err := message.Channel.Guild.Edit(Client, common.EditGuildOptions{
+				Name: message_args[0],
+			})
+			if err != nil {
+				panic(err)
+			}
+			message.Reply(Client, "modified your server oboz")
 		}
+	})
+	Client.On("GUILD_CREATE", func(args ...any) {
+		guild := args[0].(common.Guild)
+		fmt.Println(guild.Name, guild.ID)
 	})
 	Client.Connect()
 }

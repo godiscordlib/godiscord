@@ -1,6 +1,7 @@
 package common
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -80,6 +81,10 @@ func (c Client) Connect() error {
 			}
 			message.Channel = *ptr_channel
 			c.Emit("MESSAGE_REACTION_ADD", message)
+		case "GUILD_CREATE":
+			var guild Guild
+			json.Unmarshal(payload.Data, &guild)
+			c.Emit("GUILD_CREATE", guild)
 		default:
 			fmt.Println(payload.EventName)
 		}
@@ -135,6 +140,59 @@ func (c Client) GetGuildByID(ID string) (*Guild, error) {
 	defer res.Body.Close()
 	json.Unmarshal(body_in_bytes, &guild)
 	return &guild, nil
+}
+
+// Can only be used if the bot is in less than 10 guilds.
+func (c Client) CreateGuild(Options CreateGuildOptions) (*Guild, error) {
+	body, err := json.Marshal(Options)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(string(body))
+	body_reader := bytes.NewReader(body)
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/guilds", API_URL), body_reader)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+c.Token)
+	req.Header.Set("Content-Type", "application/json")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusCreated {
+		bodyErr, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("status %d: %s", res.StatusCode, string(bodyErr))
+	}
+	defer res.Body.Close()
+	body_in_bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var guild Guild
+	if err = json.Unmarshal(body_in_bytes, &guild); err != nil {
+		return nil, err
+	}
+	return &guild, err
+}
+
+func (c Client) LeaveGuild(GuildID string) error {
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/users/@me/guilds/%s", API_URL, GuildID), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+c.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusNoContent {
+		defer res.Body.Close()
+		body, _ := io.ReadAll(res.Body)
+		fmt.Printf("%s\n", string(body))
+		return fmt.Errorf("error: got status code %d while leaving guild", res.StatusCode)
+	}
+	return nil
 }
 
 func toString(value any) string {
