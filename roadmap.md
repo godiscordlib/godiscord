@@ -8,18 +8,18 @@
 -   ✅ Leave Guild
 -   ❌ Get Guild Preview
 -   ❌ Edit Guild
--   ❌ Delete Guild
+-   ✅ Delete Guild
 -   ❌ Get All Guild Channels
--   ❌ Create Channel
+-   ✅ Create Channel
 -   ❌ Edit Channel Position
 -   ❌ Get Active Threads
--   ❌ Get a GuildMember
+-   ✅ Get a GuildMember
 -   ❌ List GuildMembers (only 1k max/request...)
 -   ❌ Search GuildMembers
 -   ❌ Add GuildMember (with OAuth2, not now)
 -   ❌ Edit GuildMember
 -   ❌ Edit Bot GuildMember
--   ❌ Get Guild Ban(s)
+-   ✅ Get Guild Ban(s)
 -   ✅ Create Ban
 -   ✅ Unban
 -   ❌ Bulk Ban

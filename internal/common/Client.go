@@ -14,15 +14,22 @@ type Client struct {
 	*User
 	Base
 	*EventManager
-	Token   string
-	Intents int
+	Token      string
+	Intents    int
+	ws         WebSocket
+	wschannel  chan webSocketPayload
+	guildCache map[string]Guild
+}
+type guildMembersChunkEvent struct {
+	GuildID string        `json:"guild_id"`
+	Members []GuildMember `json:"members"`
 }
 
 func (c Client) Connect() error {
-	websocket := WebSocket{}
-	websocketChannel := make(chan WebSocketPayload)
-	go websocket.Connect(c.Token, c.Intents, websocketChannel)
-	for payload := range websocketChannel {
+	c.ws = WebSocket{}
+	c.wschannel = make(chan webSocketPayload)
+	go c.ws.Connect(c.Token, c.Intents, c.wschannel)
+	for payload := range c.wschannel {
 		switch payload.EventName {
 		case "READY":
 			var thing map[string]any
@@ -56,6 +63,14 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			message.Channel.Guild.Owner = *ptr_owner
 			c.Emit("MESSAGE_CREATE", message)
 		case "MESSAGE_UPDATE":
 			var message Message
@@ -68,6 +83,14 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			message.Channel.Guild.Owner = *ptr_owner
 			c.Emit("MESSAGE_EDIT", message)
 		case "MESSAGE_REACTION_ADD":
 			var message Message
@@ -80,11 +103,50 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			message.Channel.Guild.Owner = *ptr_owner
 			c.Emit("MESSAGE_REACTION_ADD", message)
 		case "GUILD_CREATE":
 			var guild Guild
 			json.Unmarshal(payload.Data, &guild)
+			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			guild.Owner = *ptr_owner
+			// c.guildCache[guild.ID] = guild
 			c.Emit("GUILD_CREATE", guild)
+			// case "GUILD_MEMBERS_CHUNK":
+			// var chunk guildMembersChunkEvent
+			// if err := json.Unmarshal(payload.Data, &chunk); err != nil {
+			// 	log.Println("Failed to parse GUILD_MEMBERS_CHUNK:", err)
+			// } else {
+			// 	ptr_guild, err := c.GetGuildByID(chunk.GuildID)
+			// 	if err != nil {
+			// 		return err
+			// 	}
+			// 	guild := *ptr_guild
+			// 	for _, member := range chunk.Members {
+			// 		guild.MemberCache[member.User.ID] = member
+			// 	}
+			// 	c.guildCache[guild.ID] = guild
+			// }
+		case "CHANNEL_CREATE":
+			var channel BaseChannel
+			err := json.Unmarshal(payload.Data, &channel)
+			if err != nil {
+				return err
+			}
+			c.Emit("CHANNEL_CREATE", channel)
 		default:
 			fmt.Println(payload.EventName)
 		}
@@ -193,6 +255,12 @@ func (c Client) LeaveGuild(GuildID string) error {
 		return fmt.Errorf("error: got status code %d while leaving guild", res.StatusCode)
 	}
 	return nil
+}
+
+func (c Client) GetGuildMembers(Guild Guild) (*[]GuildMember, error) {
+	var gms []GuildMember
+
+	return &gms, nil
 }
 
 func toString(value any) string {

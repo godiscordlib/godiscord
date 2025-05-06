@@ -7,6 +7,7 @@ import (
 
 	"github.com/AYn0nyme/godiscord/client"
 	"github.com/AYn0nyme/godiscord/internal/common"
+	"github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 		}
 		if strings.HasPrefix(message.Content, "!ban") {
 			if len(message_args) < 1 {
-				message.Reply(Client, "noob not enof arguments")
+				message.Reply(Client, "not enough arguments")
 			}
 			if len(message.UsersMentions) > 0 {
 				err := message.Channel.Guild.Ban(Client, message.UsersMentions[0], 0)
@@ -58,7 +59,7 @@ func main() {
 			fmt.Printf("Created guild %s with success!\n", guild.Name)
 		} else if strings.HasPrefix(message.Content, "!lg") {
 			if message.Author.ID != "943580965446512661" {
-				message.Reply(Client, "You're not my owner bozo")
+				message.Reply(Client, "You're not my owner")
 				return
 			}
 			fmt.Println("im here")
@@ -77,18 +78,37 @@ func main() {
 				panic(err)
 			}
 			message.Reply(Client, "Unbanned user :(")
-		} else if strings.HasPrefix(message.Content, "!eg") {
+		} else if strings.HasPrefix(message.Content, "!cc") {
 			if message.Author.ID != "943580965446512661" {
-				message.Reply(Client, "You're not my owner bozo")
+				message.Reply(Client, "You're not my owner")
 				return
 			}
-			_, err := message.Channel.Guild.Edit(Client, common.EditGuildOptions{
-				Name: message_args[0],
+			if len(message_args) < 2 {
+				message.Reply(Client, "Stoopid u coded smth u cant even do it properly")
+				return
+			}
+			ch, err := message.Channel.Guild.CreateChannel(Client, common.CreateChannelOptions{
+				Name:       message_args[0],
+				Type:       enums.TextChannel,
+				CategoryID: message_args[1],
+				Position:   1,
 			})
 			if err != nil {
 				panic(err)
 			}
-			message.Reply(Client, "modified your server oboz")
+			message.Reply(Client, "created channel.")
+			if ch.Type == enums.TextChannel {
+				ch.Send(Client, "<@"+message.Author.ID+">")
+			}
+		} else if strings.HasPrefix(message.Content, "!gb") {
+			bans, err := message.Channel.Guild.GetBans(Client)
+			if bans == nil || *bans == nil || err != nil {
+				panic(err)
+			} else {
+				for _, v := range *bans {
+					message.Reply(Client, v.User.Username)
+				}
+			}
 		}
 	})
 	Client.On("GUILD_CREATE", func(args ...any) {

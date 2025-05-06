@@ -10,31 +10,42 @@ import (
 )
 
 type WebSocket struct {
+	conn *websocket.Conn
+}
+type webSocketPayload struct {
+	OP             int             `json:"op"`
+	Data           json.RawMessage `json:"d"`
+	SequenceNumber *int            `json:"s,omitempty"`
+	EventName      string          `json:"t,omitempty"`
+}
+type helloWebSocket struct {
+	Heartbeats uint `json:"heartbeat_interval"`
 }
 
 const WEBSOCKET_URL = "wss://gateway.discord.gg/?v=10&encoding=json"
 
-func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan WebSocketPayload) {
+func (w WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan webSocketPayload) {
 	conn, _, err := websocket.DefaultDialer.Dial(WEBSOCKET_URL, nil)
+	w.conn = conn
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer conn.Close()
+	defer w.conn.Close()
 
-	_, message, err := conn.ReadMessage()
+	_, message, err := w.conn.ReadMessage()
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	var objMsg WebSocketPayload
+	var objMsg webSocketPayload
 	if err := json.Unmarshal(message, &objMsg); err != nil {
 		log.Fatalln(err)
 	}
 	if objMsg.OP != 10 {
 		log.Fatalln("First message isn't an Hello (op 10)")
 	}
-	var helloWebSocket HelloWebSocket
+	var helloWebSocket helloWebSocket
 	if err := json.Unmarshal(objMsg.Data, &helloWebSocket); err != nil {
 		log.Fatalln(err)
 	}
@@ -43,11 +54,11 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 	go func() {
 		for {
 			<-heartbeat_ticker.C
-			heartbeat := &WebSocketPayload{
+			heartbeat := &webSocketPayload{
 				OP:   1,
 				Data: nil,
 			}
-			if err := conn.WriteJSON(heartbeat); err != nil {
+			if err := w.conn.WriteJSON(heartbeat); err != nil {
 				log.Fatalln(err)
 			}
 		}
@@ -66,19 +77,19 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 		},
 		Intents: Intents,
 	}
-	identifyPayload := &WebSocketPayload{
+	identifyPayload := &webSocketPayload{
 		OP:   2,
 		Data: marshal(identifyData),
 	}
 
-	if err := conn.WriteJSON(identifyPayload); err != nil {
+	if err := w.conn.WriteJSON(identifyPayload); err != nil {
 		log.Fatalln(err)
 	}
 
-	var discordRes WebSocketPayload
+	var discordRes webSocketPayload
 
 	for {
-		_, msg, err := conn.ReadMessage()
+		_, msg, err := w.conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			break
@@ -93,7 +104,13 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 	}
 
 }
-
+func (w WebSocket) SendEvent(WSEventType int, Data any) error {
+	payload := &webSocketPayload{
+		OP:   WSEventType,
+		Data: marshal(Data),
+	}
+	return w.conn.WriteJSON(payload)
+}
 func marshal(v any) json.RawMessage {
 	o, err := json.Marshal(v)
 	if err != nil {

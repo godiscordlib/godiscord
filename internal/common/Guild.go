@@ -37,8 +37,10 @@ type Guild struct {
 	BoostProgressionBarEnabled  bool                 `json:"premium_progress_bar_enabled"`
 	Roles                       []Role               `json:"roles"`
 	Emojis                      []Emoji              `json:"emojis"`
-	Channels                    []BaseChannel
-	Has2FARequired              bool
+	Channels                    []BaseChannel        `json:"channels"`
+	Owner                       GuildMember
+	MemberCache                 map[string]GuildMember
+	// Has2FARequired              bool                 `json:"channels"`
 	// TODO:
 	// Add Owner
 	// Add Members? Will call API several times for a big server (1k members per request)
@@ -82,7 +84,7 @@ type EditGuildOptions struct {
 	BoostProgressionBarEnabled bool                             `json:"premium_progress_bar_enabled,omitempty"`
 }
 
-func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int) error {
+func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int, Reason string) error {
 	switch user := USER.(type) {
 	case string:
 		var body bytes.Buffer
@@ -96,6 +98,7 @@ func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int) error {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
+		req.Header.Set("X-Audit-Log-Reason", Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -119,6 +122,7 @@ func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int) error {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
+		req.Header.Set("X-Audit-Log-Reason", Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -134,7 +138,7 @@ func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int) error {
 	}
 	return nil
 }
-func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int) error {
+func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int, Reason string) error {
 	switch user := USER.(type) {
 	case string:
 		var body bytes.Buffer
@@ -148,6 +152,7 @@ func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int) error {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
+		req.Header.Set("X-Audit-Log-Reason", Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -171,6 +176,7 @@ func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int) error {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
+		req.Header.Set("X-Audit-Log-Reason", Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -186,12 +192,51 @@ func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int) error {
 	}
 	return nil
 }
-func (g Guild) Edit(Client Client, Options EditGuildOptions) (*Guild, error) {
+func (g Guild) Delete(Client Client) error {
+	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/guilds/%s", API_URL, g.ID), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 204 {
+		defer res.Body.Close()
+		body, _ := io.ReadAll(res.Body)
+		return fmt.Errorf("%s", string(body))
+	}
+	return nil
+}
+func (g Guild) GetMemberByID(Client Client, ID string) (*GuildMember, error) {
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, g.ID, ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("%s", string(body))
+	}
+	var gm GuildMember
+	json.Unmarshal(body, &gm)
+	return &gm, nil
+}
+func (g Guild) CreateChannel(Client Client, Options CreateChannelOptions) (*BaseChannel, error) {
 	body, err := json.Marshal(Options)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/guilds/%s", API_URL, g.ID), bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/guilds/%s/channels", API_URL, g.ID), bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -201,15 +246,94 @@ func (g Guild) Edit(Client Client, Options EditGuildOptions) (*Guild, error) {
 	if err != nil {
 		return nil, err
 	}
-	if res.StatusCode != http.StatusOK {
-		return nil, err
-	}
 	defer res.Body.Close()
-	body_in_bytes, err := io.ReadAll(res.Body)
+	req_body, _ := io.ReadAll(res.Body)
+	if res.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("error: %s", string(req_body))
+	}
+	var channel BaseChannel
+	err = json.Unmarshal(req_body, &channel)
 	if err != nil {
 		return nil, err
 	}
-	var guild Guild
-	json.Unmarshal(body_in_bytes, &guild)
-	return &guild, nil
+	return &channel, nil
 }
+func (g Guild) GetBans(Client Client) (*[]Ban, error) {
+	var bans []Ban
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/guilds/%s/bans", API_URL, g.ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error: %s", string(body))
+	}
+	err = json.Unmarshal(body, &bans)
+	if err != nil {
+		return nil, err
+	}
+	return &bans, nil
+}
+func (g Guild) GetBan(Client Client, UserID string) (*Ban, error) {
+	var ban Ban
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, UserID), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error: %s", string(body))
+	}
+	err = json.Unmarshal(body, &ban)
+	if err != nil {
+		return nil, err
+	}
+	return &ban, nil
+}
+
+// WIP
+// func (g Guild) Edit(Client Client, Options EditGuildOptions) (*Guild, error) {
+// 	body, err := json.Marshal(Options)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/guilds/%s", API_URL, g.ID), bytes.NewReader(body))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	req.Header.Set("Authorization", "Bot "+Client.Token)
+// 	req.Header.Set("Content-Type", "application/json")
+// 	res, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	if res.StatusCode != http.StatusOK {
+// 		return nil, err
+// 	}
+// 	defer res.Body.Close()
+// 	body_in_bytes, err := io.ReadAll(res.Body)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	var guild Guild
+// 	json.Unmarshal(body_in_bytes, &guild)
+// 	return &guild, nil
+// }

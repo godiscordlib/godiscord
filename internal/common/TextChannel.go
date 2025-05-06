@@ -7,18 +7,13 @@ import (
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 type TextChannel struct {
 	BaseChannel
-	LastMessageID string
-	NSFW          bool
-	CategoryID    string
 }
 
-func (t TextChannel) Send(Client Client, Data any) (*Message, error) {
+func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
 	switch data := Data.(type) {
 	case string:
 		message := payloadMessage{
@@ -66,7 +61,7 @@ func (t TextChannel) Send(Client Client, Data any) (*Message, error) {
 	return &res_message[0], nil
 }
 
-func (t TextChannel) BulkDelete(Client Client, Messages any) error {
+func (t BaseChannel) BulkDelete(Client Client, Messages any) error {
 	switch messages_for_req := Messages.(type) {
 	case int:
 		get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, messages_for_req), nil)
@@ -153,8 +148,4 @@ func (t TextChannel) BulkDelete(Client Client, Messages any) error {
 		return fmt.Errorf("error: wrong type using bulk delete")
 	}
 	return nil
-}
-
-func (t TextChannel) GetType() enums.ChannelType {
-	return enums.TextChannel
 }
