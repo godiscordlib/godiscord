@@ -75,6 +75,7 @@ func (c Client) Connect() error {
 			c.Emit("MESSAGE_CREATE", message)
 		case "MESSAGE_UPDATE":
 			var message Message
+			fmt.Println(string(payload.Data))
 			json.Unmarshal(payload.Data, &message)
 			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
 			if err != nil {
@@ -92,7 +93,7 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			message.Channel.Guild.Owner = *ptr_owner
-			c.Emit("MESSAGE_EDIT", message)
+			c.Emit("MESSAGE_UPDATE", message)
 		case "MESSAGE_REACTION_ADD":
 			var message Message
 			json.Unmarshal(payload.Data, &message)
@@ -124,6 +125,7 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			guild.Owner = *ptr_owner
+			// c.guildCache[guild.ID] = guild
 			c.Emit("GUILD_CREATE", guild)
 		case "GUILD_DELETE":
 			var guild Guild
@@ -137,21 +139,39 @@ func (c Client) Connect() error {
 			}
 			guild.Owner = *ptr_owner
 			c.Emit("GUILD_DELETE", guild)
-			// case "GUILD_MEMBERS_CHUNK":
-			// var chunk guildMembersChunkEvent
-			// if err := json.Unmarshal(payload.Data, &chunk); err != nil {
-			// 	log.Println("Failed to parse GUILD_MEMBERS_CHUNK:", err)
-			// } else {
-			// 	ptr_guild, err := c.GetGuildByID(chunk.GuildID)
-			// 	if err != nil {
-			// 		return err
-			// 	}
-			// 	guild := *ptr_guild
-			// 	for _, member := range chunk.Members {
-			// 		guild.MemberCache[member.User.ID] = member
-			// 	}
-			// 	c.guildCache[guild.ID] = guild
-			// }
+		case "GUILD_UPDATE":
+			var guild Guild
+			json.Unmarshal(payload.Data, &guild)
+			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			guild.Owner = *ptr_owner
+			c.Emit("GUILD_UPDATE", guild)
+		case "GUILD_ROLE_CREATE":
+			var role Role
+			err := json.Unmarshal(payload.Data, &role)
+			if err != nil {
+				return err
+			}
+			c.Emit("GUILD_ROLE_CREATE", role)
+		case "GUILD_ROLE_DELETE":
+			var role Role
+			err := json.Unmarshal(payload.Data, &role)
+			if err != nil {
+				return err
+			}
+			c.Emit("GUILD_ROLE_DELETE", role)
+		case "GUILD_ROLE_UPDATE":
+			var role Role
+			err := json.Unmarshal(payload.Data, &role)
+			if err != nil {
+				return err
+			}
+			c.Emit("GUILD_ROLE_UPDATE", role)
 		case "CHANNEL_CREATE":
 			var channel BaseChannel
 			err := json.Unmarshal(payload.Data, &channel)
