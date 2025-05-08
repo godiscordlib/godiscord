@@ -14,3 +14,13 @@ type Role struct {
 	Mentionable        bool             `json:"mentionable"`
 	Flags              int              `json:"flags"`
 }
+
+type CreateRoleOptions struct {
+	Name        string `json:"name,omitempty"`
+	Permissions string `json:"permissions,omitempty"`
+	Color       int    `json:"color,omitempty"`
+	Hoist       bool   `json:"hoisted,omitempty"`
+	// TODO: add icon
+	UnicodeEmoji string `json:"unicode_string,omitempty"`
+	Mentionable  bool   `json:"mentionable,omitempty"`
+}

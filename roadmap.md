@@ -1,5 +1,7 @@
 # godiscord Roadmap ⛑️
 
+## ADD REASONS TO METHODS THAT CAN HAVE IT
+
 ## ✅ Message
 
 ## 🛠 Guild
@@ -23,10 +25,10 @@
 -   ✅ Create Ban
 -   ✅ Unban
 -   ❌ Bulk Ban
--   ❌ Get Role(s)
--   ❌ Create Role
+-   ✅ Get Role(s)
+-   ✅ Create Role
 -   ❌ Edit Role
--   ❌ Delete Role
+-   ✅ Delete Role
 -   ❌ Guild Prune things
 -   ❌ Get Voices region (useless...)
 -   ❌ Get Invites

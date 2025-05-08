@@ -14,16 +14,17 @@ type Client struct {
 	*User
 	Base
 	*EventManager
-	Token      string
-	Intents    int
-	ws         WebSocket
-	wschannel  chan webSocketPayload
-	guildCache map[string]Guild
+	Token     string
+	Intents   int
+	ws        WebSocket
+	wschannel chan webSocketPayload
+	// guildCache map[string]Guild
 }
-type guildMembersChunkEvent struct {
-	GuildID string        `json:"guild_id"`
-	Members []GuildMember `json:"members"`
-}
+
+// type guildMembersChunkEvent struct {
+// 	GuildID string        `json:"guild_id"`
+// 	Members []GuildMember `json:"members"`
+// }
 
 func (c Client) Connect() error {
 	c.ws = WebSocket{}
@@ -123,8 +124,19 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			guild.Owner = *ptr_owner
-			// c.guildCache[guild.ID] = guild
 			c.Emit("GUILD_CREATE", guild)
+		case "GUILD_DELETE":
+			var guild Guild
+			json.Unmarshal(payload.Data, &guild)
+			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			if err != nil {
+				return err
+			}
+			if ptr_owner == nil {
+				ptr_owner = &GuildMember{}
+			}
+			guild.Owner = *ptr_owner
+			c.Emit("GUILD_DELETE", guild)
 			// case "GUILD_MEMBERS_CHUNK":
 			// var chunk guildMembersChunkEvent
 			// if err := json.Unmarshal(payload.Data, &chunk); err != nil {
@@ -257,11 +269,13 @@ func (c Client) LeaveGuild(GuildID string) error {
 	return nil
 }
 
-func (c Client) GetGuildMembers(Guild Guild) (*[]GuildMember, error) {
-	var gms []GuildMember
+// func (c Client) Edit()
 
-	return &gms, nil
-}
+// func (c Client) GetGuildMembers(Guild Guild) (*[]GuildMember, error) {
+// 	var gms []GuildMember
+
+// 	return &gms, nil
+// }
 
 func toString(value any) string {
 	if str, ok := value.(string); ok {
