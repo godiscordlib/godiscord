@@ -83,23 +83,25 @@ type EditGuildOptions struct {
 	Features                   []enums.GuildFeature             `json:"features"`
 	BoostProgressionBarEnabled bool                             `json:"premium_progress_bar_enabled,omitempty"`
 }
+type BanOptions struct {
+	DeleteMessageSeconds int `json:"delete_message_seconds,omitempty"`
+	Reason               string
+}
 
 // TODO: "refactor" to do good error handling with reao
-func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int, Reason string) error {
+func (g Guild) Ban(Client Client, USER any, Options BanOptions) error {
 	switch user := USER.(type) {
 	case string:
-		var body bytes.Buffer
-		json.NewEncoder(&body).Encode(struct {
-			DMS int `json:"delete_message_seconds"`
-		}{
-			DMS: DeleteMessageSeconds,
-		})
-		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user), &body)
+		body, err := json.Marshal(Options)
+		if err != nil {
+			return err
+		}
+		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user), bytes.NewReader(body))
 		if err != nil {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
-		req.Header.Set("X-Audit-Log-Reason", Reason)
+		req.Header.Set("X-Audit-Log-Reason", Options.Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -111,19 +113,16 @@ func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int, Reason str
 			return fmt.Errorf("error: ban resulted in a %s code, instead of 204", res.Status)
 		}
 	case User:
-		var body bytes.Buffer
-		json.NewEncoder(&body).Encode(struct {
-			DMS int `json:"delete_message_seconds"`
-		}{
-			DMS: DeleteMessageSeconds,
-		})
-
-		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user.ID), &body)
+		body, err := json.Marshal(Options)
+		if err != nil {
+			return err
+		}
+		req, err := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user.ID), bytes.NewReader(body))
 		if err != nil {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
-		req.Header.Set("X-Audit-Log-Reason", Reason)
+		req.Header.Set("X-Audit-Log-Reason", Options.Reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -136,6 +135,31 @@ func (g Guild) Ban(Client Client, USER any, DeleteMessageSeconds int, Reason str
 		}
 	default:
 		return fmt.Errorf("error: User is not a string (ID) nor a User struct")
+	}
+	return nil
+}
+func (g Guild) BulkBan(Client Client, Users []string, Options BanOptions) error {
+	body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/guilds/%s/bulk-ban", API_URL, g.ID), bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+Client.Token)
+	req.Header.Set("X-Audit-Log-Reason", Options.Reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		defer res.Body.Close()
+		body_in_bytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		return fmt.Errorf("%s", string(body_in_bytes))
 	}
 	return nil
 }

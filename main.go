@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Client := client.NewClient(string(Token), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages)
+	Client := client.NewClient(string(Token), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages, enums.GI_GuildModeration)
 	Client.On("READY", func(args ...any) {
 		c := args[0].(common.Client)
 		fmt.Println(c.Username, "is ready")
@@ -34,12 +34,18 @@ func main() {
 				message.Reply(Client, "not enough arguments")
 			}
 			if len(message.UsersMentions) > 0 {
-				err := message.Channel.Guild.Ban(Client, message.UsersMentions[0], 0, "")
+				err := message.Channel.Guild.Ban(Client, message.UsersMentions[0], common.BanOptions{
+					DeleteMessageSeconds: 0,
+					Reason:               "because",
+				})
 				if err != nil {
 					panic(err)
 				}
 			} else {
-				err := message.Channel.Guild.Ban(Client, message_args[0], 0, "")
+				err := message.Channel.Guild.Ban(Client, message_args[0], common.BanOptions{
+					DeleteMessageSeconds: 0,
+					Reason:               "i can",
+				})
 				if err != nil {
 					panic(err)
 				}
@@ -62,7 +68,6 @@ func main() {
 				message.Reply(Client, "You're not my owner")
 				return
 			}
-			fmt.Println("im here")
 			err := Client.LeaveGuild(message_args[0])
 			if err == nil {
 				message.Reply(Client, "I left the server successfully")
@@ -71,7 +76,7 @@ func main() {
 			}
 		} else if strings.HasPrefix(message.Content, "!unban") {
 			if len(message_args) < 1 {
-				message.Reply(Client, "noob not enof arguments")
+				message.Reply(Client, "not enough arguments")
 			}
 			err := message.Channel.Guild.UnBan(Client, message_args[0], 0, "")
 			if err != nil {
@@ -84,7 +89,7 @@ func main() {
 				return
 			}
 			if len(message_args) < 2 {
-				message.Reply(Client, "Stoopid u coded smth u cant even do it properly")
+				message.Reply(Client, "not enough args")
 				return
 			}
 			ch, err := message.Channel.Guild.CreateChannel(Client, common.CreateChannelOptions{
@@ -113,7 +118,7 @@ func main() {
 			message.Channel.Guild.CreateRole(Client, common.CreateRoleOptions{})
 		} else if strings.HasPrefix(message.Content, "!dr") {
 			if len(message_args) < 1 {
-				message.Reply(Client, "not enof arguments")
+				message.Reply(Client, "not enough arguments")
 				return
 			}
 			err = message.Channel.Guild.DeleteRole(Client, message_args[0], message_args[1:]...)
