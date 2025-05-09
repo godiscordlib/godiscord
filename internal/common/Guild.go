@@ -163,21 +163,19 @@ func (g Guild) BulkBan(Client Client, Users []string, Options BanOptions) error 
 	}
 	return nil
 }
-func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int, Reason string) error {
+func (g Guild) UnBan(Client Client, USER any, Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
 	switch user := USER.(type) {
 	case string:
-		var body bytes.Buffer
-		json.NewEncoder(&body).Encode(struct {
-			DMS int `json:"delete_message_seconds"`
-		}{
-			DMS: DeleteMessageSeconds,
-		})
-		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user), &body)
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user), nil)
 		if err != nil {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
-		req.Header.Set("X-Audit-Log-Reason", Reason)
+		req.Header.Set("X-Audit-Log-Reason", reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -189,19 +187,12 @@ func (g Guild) UnBan(Client Client, USER any, DeleteMessageSeconds int, Reason s
 			return fmt.Errorf("error: ban resulted in a %s code, instead of 204", res.Status)
 		}
 	case User:
-		var body bytes.Buffer
-		json.NewEncoder(&body).Encode(struct {
-			DMS int `json:"delete_message_seconds"`
-		}{
-			DMS: DeleteMessageSeconds,
-		})
-
-		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user.ID), &body)
+		req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/guilds/%s/bans/%s", API_URL, g.ID, user.ID), nil)
 		if err != nil {
 			return err
 		}
 		req.Header.Set("Authorization", "Bot "+Client.Token)
-		req.Header.Set("X-Audit-Log-Reason", Reason)
+		req.Header.Set("X-Audit-Log-Reason", reason)
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
