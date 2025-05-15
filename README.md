@@ -22,6 +22,7 @@ import (
     "os"
     "github.com/AYn0nyme/godiscord/client"
     "github.com/AYn0nyme/godiscord/internal/common"
+    "github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
     if err != nil {
         panic(err)
     }
-    Client := client.NewClient(string(Token), 34305)
+    Client := client.NewClient(string(Token), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages)
     
     // READY event
     Client.On("READY", func(args ...any) {
@@ -43,7 +44,7 @@ func main() {
         if Message.Author.Bot {
             return
         }
-        Message.React(Client, '🧙')
+        Message.React('🧙')
     })
     
     // Connect to Discord
