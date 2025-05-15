@@ -24,14 +24,14 @@
 -   ✅ Get Guild Ban(s)
 -   ✅ Create Ban
 -   ✅ Unban
--   ❌ Bulk Ban
+-   ✅ Bulk Ban
 -   ✅ Get Role(s)
 -   ✅ Create Role
 -   ❌ Edit Role
 -   ✅ Delete Role
 -   ❌ Guild Prune things
 -   ❌ Get Voices region (useless...)
--   ❌ Get Invites
+-   ✅ Get Invites
 -   ❌ Get Integrations
 -   ❌ Delete Integrations
 -   ❌ Guild Widget things
