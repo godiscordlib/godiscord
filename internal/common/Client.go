@@ -64,7 +64,7 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 			if err != nil {
 				return err
 			}
@@ -85,7 +85,7 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func (c Client) Connect() error {
 				ptr_channel = &TextChannel{}
 			}
 			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(c, message.Channel.Guild.OwnerID)
+			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 			if err != nil {
 				return err
 			}
@@ -117,7 +117,7 @@ func (c Client) Connect() error {
 		case "GUILD_CREATE":
 			var guild Guild
 			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
 			if err != nil {
 				return err
 			}
@@ -130,7 +130,7 @@ func (c Client) Connect() error {
 		case "GUILD_DELETE":
 			var guild Guild
 			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
 			if err != nil {
 				return err
 			}
@@ -142,7 +142,7 @@ func (c Client) Connect() error {
 		case "GUILD_UPDATE":
 			var guild Guild
 			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(c, guild.OwnerID)
+			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
 			if err != nil {
 				return err
 			}

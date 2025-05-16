@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ type TextChannel struct {
 	BaseChannel
 }
 
-func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
+func (t BaseChannel) Send(Data any) (*Message, error) {
 	switch data := Data.(type) {
 	case string:
 		message := payloadMessage{
@@ -24,7 +25,7 @@ func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
 		json.NewEncoder(&payload).Encode(message)
 
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, t.ID), &payload)
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		request.Header.Set("Content-Type", "application/json")
 		http.DefaultClient.Do(request)
 	case MessageData:
@@ -36,7 +37,7 @@ func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
 		var payload bytes.Buffer
 		json.NewEncoder(&payload).Encode(message)
 		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, t.ID), &payload)
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		request.Header.Set("Content-Type", "application/json")
 		http.DefaultClient.Do(request)
 	}
@@ -44,7 +45,7 @@ func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+	get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 	var res_message []Message
 	get_messages_res, err := http.DefaultClient.Do(get_messages_req)
 	if err != nil {
@@ -61,14 +62,14 @@ func (t BaseChannel) Send(Client Client, Data any) (*Message, error) {
 	return &res_message[0], nil
 }
 
-func (t BaseChannel) BulkDelete(Client Client, Messages any) error {
+func (t BaseChannel) BulkDelete(Messages any) error {
 	switch messages_for_req := Messages.(type) {
 	case int:
 		get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, messages_for_req), nil)
 		if err != nil {
 			return err
 		}
-		get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		var res_messages []Message
 		get_messages_res, err := http.DefaultClient.Do(get_messages_req)
 		if err != nil {
@@ -100,7 +101,7 @@ func (t BaseChannel) BulkDelete(Client Client, Messages any) error {
 			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -116,7 +117,7 @@ func (t BaseChannel) BulkDelete(Client Client, Messages any) error {
 			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return err
@@ -136,7 +137,7 @@ func (t BaseChannel) BulkDelete(Client Client, Messages any) error {
 			return err
 		}
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", Client.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			panic(err)
