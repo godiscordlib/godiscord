@@ -24,3 +24,12 @@ type CreateRoleOptions struct {
 	UnicodeEmoji string `json:"unicode_string,omitempty"`
 	Mentionable  bool   `json:"mentionable,omitempty"`
 }
+
+type EditRoleOptions struct {
+	Name         string `json:"name"`
+	Permissions  string `json:"permissions"`
+	Color        int    `json:"color,omitempty"`
+	Hoisted      bool   `json:"hoist"`
+	UnicodeEmoji string `json:"unicode_string,omitempty"`
+	Mentionable  bool   `json:"mentionable,omitempty"`
+}

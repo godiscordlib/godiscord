@@ -104,7 +104,7 @@ func main() {
 			}
 			message.Reply("created channel.")
 			if ch.Type == enums.TextChannel {
-				ch.Send(Client, "<@"+message.Author.ID+">")
+				ch.Send("<@" + message.Author.ID + ">")
 			}
 		} else if strings.HasPrefix(message.Content, "!gb") {
 			bans, err := message.Channel.Guild.GetBans()

@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -449,6 +450,39 @@ func (g Guild) GetRole(RoleID string) (*Role, error) {
 	}
 	err = json.Unmarshal(body, &role)
 	if err != nil {
+		return nil, err
+	}
+	return &role, nil
+}
+
+func (g Guild) EditRole(RoleID string, Options EditRoleOptions, Reason ...string) (*Role, error) {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/roles/%s", API_URL, g.ID, RoleID), bytes.NewReader(req_body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, errors.New(string(res_body))
+	}
+	var role Role
+	if err = json.Unmarshal(res_body, &role); err != nil {
 		return nil, err
 	}
 	return &role, nil

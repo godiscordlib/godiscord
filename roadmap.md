@@ -17,7 +17,7 @@
 -   ❌ Get Active Threads
 -   ✅ Get a GuildMember
 -   ❌ List GuildMembers (only 1k max/request...)
--   ❌ Search GuildMembers
+-   ❌ Search GuildMembers?
 -   ❌ Add GuildMember (with OAuth2, not now)
 -   ❌ Edit GuildMember
 -   ❌ Edit Bot GuildMember
