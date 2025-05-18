@@ -11,7 +11,6 @@ import (
 )
 
 type InviteManager struct {
-	guildID string
 }
 
 func (im InviteManager) Get(Code string) (*Invite, error) {
