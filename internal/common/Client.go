@@ -72,6 +72,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			message.Channel.Guild.Owner = *ptr_owner
+			message.Channel.Guild.Prunes = PruneManager{
+				Guild: &message.Channel.Guild,
+			}
 			c.Emit("MESSAGE_CREATE", message)
 		case "MESSAGE_UPDATE":
 			var message Message
@@ -93,6 +96,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			message.Channel.Guild.Owner = *ptr_owner
+			message.Channel.Guild.Prunes = PruneManager{
+				Guild: &message.Channel.Guild,
+			}
 			c.Emit("MESSAGE_UPDATE", message)
 		case "MESSAGE_REACTION_ADD":
 			var message Message
@@ -113,6 +119,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			message.Channel.Guild.Owner = *ptr_owner
+			message.Channel.Guild.Prunes = PruneManager{
+				Guild: &message.Channel.Guild,
+			}
 			c.Emit("MESSAGE_REACTION_ADD", message)
 		case "GUILD_CREATE":
 			var guild Guild
@@ -125,6 +134,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			guild.Owner = *ptr_owner
+			guild.Prunes = PruneManager{
+				Guild: &guild,
+			}
 			// c.guildCache[guild.ID] = guild
 			c.Emit("GUILD_CREATE", guild)
 		case "GUILD_DELETE":
@@ -150,6 +162,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			guild.Owner = *ptr_owner
+			guild.Prunes = PruneManager{
+				Guild: &guild,
+			}
 			c.Emit("GUILD_UPDATE", guild)
 		case "GUILD_ROLE_CREATE":
 			var role Role
