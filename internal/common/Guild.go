@@ -44,6 +44,7 @@ type Guild struct {
 	MemberCache                 map[string]GuildMember
 	Invites                     InviteManager
 	Prunes                      PruneManager
+  Me GuildMember
 	// Has2FARequired              bool                 `json:"channels"`
 	// TODO:
 	// Add Owner

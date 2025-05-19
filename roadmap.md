@@ -29,7 +29,7 @@
 -   ✅ Create Role
 -   ❌ Edit Role
 -   ✅ Delete Role
--   ❌ Guild Prune things
+-   ✅ Guild Prune things
 -   ❌ Get Voices region (useless...)
 -   ✅ Get Invites
 -   ❌ Get Integrations
