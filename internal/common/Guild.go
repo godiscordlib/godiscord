@@ -250,6 +250,8 @@ func (g Guild) GetMemberByID(ID string) (*GuildMember, error) {
 	}
 	var gm GuildMember
 	json.Unmarshal(body, &gm)
+	gm.RoleManager.GuildID = g.ID
+	gm.RoleManager.MemberID = gm.User.ID
 	return &gm, nil
 }
 func (g Guild) CreateChannel(Options CreateChannelOptions) (*BaseChannel, error) {
