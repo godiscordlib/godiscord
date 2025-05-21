@@ -75,6 +75,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Prunes = PruneManager{
 				Guild: &message.Channel.Guild,
 			}
+			message.Channel.Guild.Me = localGuildMember{
+				GuildId: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_CREATE", message)
 		case "MESSAGE_UPDATE":
 			var message Message
@@ -99,6 +102,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Prunes = PruneManager{
 				Guild: &message.Channel.Guild,
 			}
+			message.Channel.Guild.Me = localGuildMember{
+				GuildId: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_UPDATE", message)
 		case "MESSAGE_REACTION_ADD":
 			var message Message
@@ -122,6 +128,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Prunes = PruneManager{
 				Guild: &message.Channel.Guild,
 			}
+			message.Channel.Guild.Me = localGuildMember{
+				GuildId: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_REACTION_ADD", message)
 		case "GUILD_CREATE":
 			var guild Guild
@@ -138,6 +147,9 @@ func (c Client) Connect() error {
 				Guild: &guild,
 			}
 			// c.guildCache[guild.ID] = guild
+			guild.Me = localGuildMember{
+				GuildId: guild.ID,
+			}
 			c.Emit("GUILD_CREATE", guild)
 		case "GUILD_DELETE":
 			var guild Guild
@@ -150,6 +162,9 @@ func (c Client) Connect() error {
 				ptr_owner = &GuildMember{}
 			}
 			guild.Owner = *ptr_owner
+			guild.Me = localGuildMember{
+				GuildId: guild.ID,
+			}
 			c.Emit("GUILD_DELETE", guild)
 		case "GUILD_UPDATE":
 			var guild Guild
@@ -165,6 +180,9 @@ func (c Client) Connect() error {
 			guild.Prunes = PruneManager{
 				Guild: &guild,
 			}
+			guild.Me = localGuildMember{
+				GuildId: guild.ID,
+			}
 			c.Emit("GUILD_UPDATE", guild)
 		case "GUILD_ROLE_CREATE":
 			var role Role
@@ -179,6 +197,12 @@ func (c Client) Connect() error {
 			if err != nil {
 				return err
 			}
+			// botMember, err := role.Guild.GetMemberByID(c.User.ID)
+			// if err != nil {
+			//   return err
+			// }
+			// guild.Me = *botMember
+
 			c.Emit("GUILD_ROLE_DELETE", role)
 		case "GUILD_ROLE_UPDATE":
 			var role Role
@@ -192,6 +216,9 @@ func (c Client) Connect() error {
 			err := json.Unmarshal(payload.Data, &channel)
 			if err != nil {
 				return err
+			}
+			channel.Guild.Me = localGuildMember{
+				GuildId: channel.GuildID,
 			}
 			c.Emit("CHANNEL_CREATE", channel)
 		default:

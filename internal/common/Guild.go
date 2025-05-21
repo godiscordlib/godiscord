@@ -44,7 +44,7 @@ type Guild struct {
 	MemberCache                 map[string]GuildMember
 	Invites                     InviteManager
 	Prunes                      PruneManager
-  Me GuildMember
+	Me                          localGuildMember
 	// Has2FARequired              bool                 `json:"channels"`
 	// TODO:
 	// Add Owner
@@ -488,6 +488,45 @@ func (g Guild) EditRole(RoleID string, Options EditRoleOptions, Reason ...string
 		return nil, err
 	}
 	return &role, nil
+}
+
+type localGuildMember struct {
+	GuildId string
+}
+
+type LocalGuildMemberEditOptions struct {
+	Nickname string `json:"nick"`
+	Reason   string
+}
+
+func (l localGuildMember) Edit(Options LocalGuildMemberEditOptions) (*GuildMember, error) {
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/@me", API_URL, l.GuildId), bytes.NewBuffer(req_body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", Options.Reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := io.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		return nil, errors.New(string(body))
+	}
+	var gm GuildMember
+	if err = json.Unmarshal(body, &gm); err != nil {
+		return nil, err
+	}
+	return &gm, nil
 }
 
 // WIP

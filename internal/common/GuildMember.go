@@ -17,3 +17,17 @@ type GuildMember struct {
 	// Add GuildMemberFlags
 	// Add AvatarDecoration (low priority)
 }
+
+type EditGuildMemberOptions struct {
+	Nickname        string   `json:"nick"`
+	Roles           []string `json:"roles"`
+	Muted           bool     `json:"muted"`
+	Deafened        bool     `json:"deafened"`
+	MoveToChannelID string   `json:"channel_id"`
+	TimeoutUntil    string   `json:"communication_disabled_until"` // ISO8601 timestamp
+	Flags           int      `json:"flags"`
+}
+
+func (gm GuildMember) Edit(Options EditGuildMemberOptions) {
+
+}
