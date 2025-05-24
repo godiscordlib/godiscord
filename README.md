@@ -1,7 +1,9 @@
 # ⚠️ Project still under construction, bugs may occur.
 
-# godiscord
-<img src="./www/static/logo@128x128.webp">
+<div align="center">
+    <h1>godiscord</h1>
+    <img src="./www/static/logo@128x128.webp" height="64" />
+</div>
 
 `godiscord` is a lightweight library for interacting with the Discord API in Go, inspired by [discord.js](https://discord.js.org). It provides a simple and intuitive interface to create powerful and performant Discord bots in Go.
 
