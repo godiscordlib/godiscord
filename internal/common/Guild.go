@@ -68,7 +68,7 @@ type EditGuildOptions struct {
 	AFKChannelID               string                           `json:"afk_channel_id,omitempty"`
 	AFKTimeout                 int                              `json:"afk_timeout,omitempty"`
 	ExplicitLevelFilter        enums.ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
-	Name                       string                           `json:"name"`
+	Name                       string                           `json:"name,omitempty"`
 	Icon                       string                           `json:"icon,omitempty"`
 	VerificationLevel          enums.VerificationLevel          `json:"verification_level,omitempty"`
 	DefaultMessageNotification enums.MessageNotificationLevel   `json:"default_message_notifications,omitempty"`
@@ -77,7 +77,7 @@ type EditGuildOptions struct {
 	SystemChannelID            string                           `json:"system_channel_id,omitempty"`
 	SystemChannelFlags         enums.SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 	OwnerID                    string                           `json:"owner_id,omitempty"` // ONLY IF THE BOT IS THE OWNER OF THE GUILD
-	Splash                     string                           `json:"splash"`
+	Splash                     string                           `json:"splash,omitempty"`
 	DiscoverySplash            string                           `json:"discovery_splash,omitempty"`
 	Banner                     string                           `json:"banner,omitempty"`
 	RulesChannelID             string                           `json:"rules_channel_id,omitempty"`          // Only on community guilds
@@ -85,7 +85,7 @@ type EditGuildOptions struct {
 	PreferredLocale            string                           `json:"preferred_locale,omitempty"`          // Only on community guilds
 	Description                string                           `json:"description,omitempty"`               // Only on community guilds
 	SafetyAlertsChannelID      string                           `json:"safety_alerts_channel_id,omitempty"`
-	Features                   []enums.GuildFeature             `json:"features"`
+	Features                   []enums.GuildFeature             `json:"features,omitempty"`
 	BoostProgressionBarEnabled bool                             `json:"premium_progress_bar_enabled,omitempty"`
 }
 type BanOptions struct {
@@ -532,30 +532,30 @@ func (l localGuildMember) Edit(Options LocalGuildMemberEditOptions) (*GuildMembe
 }
 
 // WIP
-// func (g Guild) Edit(Client Client, Options EditGuildOptions) (*Guild, error) {
-// 	body, err := json.Marshal(Options)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/guilds/%s", API_URL, g.ID), bytes.NewReader(body))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	req.Header.Set("Authorization", "Bot "+Client.Token)
-// 	req.Header.Set("Content-Type", "application/json")
-// 	res, err := http.DefaultClient.Do(req)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if res.StatusCode != http.StatusOK {
-// 		return nil, err
-// 	}
-// 	defer res.Body.Close()
-// 	body_in_bytes, err := io.ReadAll(res.Body)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	var guild Guild
-// 	json.Unmarshal(body_in_bytes, &guild)
-// 	return &guild, nil
-// }
+func (g Guild) Edit(Options EditGuildOptions) (*Guild, error) {
+	body, err := json.Marshal(Options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPatch, fmt.Sprintf("%s/guilds/%s", API_URL, g.ID), bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("Content-Type", "application/json")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body_in_bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	var guild Guild
+	json.Unmarshal(body_in_bytes, &guild)
+	return &guild, nil
+}

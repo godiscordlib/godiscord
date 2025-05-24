@@ -129,6 +129,13 @@ func main() {
 			} else {
 				message.Reply("DELETED ROLE")
 			}
+		} else if strings.HasPrefix(message.Content, "!eg") {
+			_, error := message.Channel.Guild.Edit(common.EditGuildOptions{
+				Name: "Edited by GODISCORD!",
+			})
+			if error != nil {
+				panic(err)
+			}
 		}
 	})
 	Client.On("GUILD_CREATE", func(args ...any) {

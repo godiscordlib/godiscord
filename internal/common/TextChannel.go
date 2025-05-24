@@ -3,11 +3,14 @@ package common
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/AYn0nyme/godiscord/internal/enums"
 )
 
 type TextChannel struct {
@@ -15,6 +18,9 @@ type TextChannel struct {
 }
 
 func (t BaseChannel) Send(Data any) (*Message, error) {
+	if t.Type != enums.TextChannel {
+		return nil, errors.New("error: wrong channel type")
+	}
 	switch data := Data.(type) {
 	case string:
 		message := payloadMessage{
@@ -63,6 +69,9 @@ func (t BaseChannel) Send(Data any) (*Message, error) {
 }
 
 func (t BaseChannel) BulkDelete(Messages any) error {
+	if t.Type != enums.TextChannel {
+		return errors.New("error: wrong channel type")
+	}
 	switch messages_for_req := Messages.(type) {
 	case int:
 		get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, messages_for_req), nil)
