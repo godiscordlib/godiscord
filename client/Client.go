@@ -18,5 +18,6 @@ func NewClient(Token string, Intents ...enums.GatewayIntent) common.Client {
 		Intents:      intents,
 		User:         &common.User{},
 		EventManager: common.NewEventManager(),
+		ReadyChan:    make(chan struct{}),
 	}
 }

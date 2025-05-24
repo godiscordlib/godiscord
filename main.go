@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/AYn0nyme/godiscord/client"
 	"github.com/AYn0nyme/godiscord/internal/common"
@@ -15,11 +16,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Client := client.NewClient(string(token), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages, enums.GI_GuildModeration)
+	Client := client.NewClient(strings.TrimSpace(string(token)), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages, enums.GI_GuildModeration, enums.GI_GuildPresences)
 
 	Client.On("READY", func(args ...any) {
-		c := args[0].(common.Client)
+		c := args[0].(*common.Client)
 		fmt.Println(c.Username, "is ready")
+		Client.SetPresence(common.PresenceUpdate{
+			Since:  time.Now().Unix(),
+			Status: "online",
+			AFK:    false,
+			Activities: []common.Activity{
+				{
+					Name: "the support",
+					Type: enums.AT_Watching,
+				},
+			},
+		})
 	})
 	Client.On("MESSAGE_CREATE", func(args ...any) {
 		message := args[0].(common.Message)
@@ -115,20 +127,6 @@ func main() {
 					message.Reply(v.User.Username)
 				}
 			}
-		} else if strings.HasPrefix(message.Content, "!cr") {
-			message.Channel.Guild.CreateRole(common.CreateRoleOptions{})
-		} else if strings.HasPrefix(message.Content, "!dr") {
-			if len(message_args) < 1 {
-				message.Reply("not enough arguments")
-				return
-			}
-			err = message.Channel.Guild.DeleteRole(message_args[0], message_args[1:]...)
-			if err != nil {
-				message.Reply("ERROR")
-				fmt.Println(err)
-			} else {
-				message.Reply("DELETED ROLE")
-			}
 		} else if strings.HasPrefix(message.Content, "!eg") {
 			_, error := message.Channel.Guild.Edit(common.EditGuildOptions{
 				Name: "Edited by GODISCORD!",
@@ -143,4 +141,6 @@ func main() {
 		fmt.Println(guild.Name, guild.ID)
 	})
 	Client.Connect()
+
+	select {}
 }

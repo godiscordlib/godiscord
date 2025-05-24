@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/AYn0nyme/godiscord/internal/enums"
 )
@@ -16,8 +17,9 @@ type Client struct {
 	*EventManager
 	Token     string
 	Intents   int
-	ws        WebSocket
+	ws        *WebSocket
 	wschannel chan webSocketPayload
+	ReadyChan chan struct{}
 	// guildCache map[string]Guild
 }
 
@@ -26,229 +28,249 @@ type Client struct {
 // 	Members []GuildMember `json:"members"`
 // }
 
-func (c Client) Connect() error {
-	c.ws = WebSocket{}
-	c.wschannel = make(chan webSocketPayload)
-	go c.ws.Connect(c.Token, c.Intents, c.wschannel)
-	for payload := range c.wschannel {
-		switch payload.EventName {
-		case "READY":
-			var thing map[string]any
-			err := json.Unmarshal(payload.Data, &thing)
-			if err != nil {
-				return err
-			}
-			var userData map[string]any
-			userData = thing["user"].(map[string]any)
-			c.User = &User{
-				Base: Base{
-					ID: toString(userData["id"]),
-				},
-				Username:      toString(userData["username"]),
-				Discriminator: toString(userData["discriminator"]),
-				AvatarHash:    toStringPtr(userData["avatar"]),
-				Bot:           true,
-				Global_Name:   toStringPtr(userData["global_name"]),
-				Flags:         toIntPtr(userData["flags"]),
-				VerifiedBot:   toBoolPtr(userData["verified"]),
-			}
-			c.Emit("READY", c)
-		case "MESSAGE_CREATE":
-			var message Message
-			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
-			if err != nil {
-				return err
-			}
-			if ptr_channel == nil {
-				ptr_channel = &TextChannel{}
-			}
-			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			message.Channel.Guild.Owner = *ptr_owner
-			message.Channel.Guild.Prunes = PruneManager{
-				Guild: &message.Channel.Guild,
-			}
-			message.Channel.Guild.Me = localGuildMember{
-				GuildId: message.Channel.GuildID,
-			}
-			message.Channel.Guild.Roles = RoleManager{
-				GuildID: message.Channel.GuildID,
-			}
-			c.Emit("MESSAGE_CREATE", message)
-		case "MESSAGE_UPDATE":
-			var message Message
-			fmt.Println(string(payload.Data))
-			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
-			if err != nil {
-				return err
-			}
-			if ptr_channel == nil {
-				ptr_channel = &TextChannel{}
-			}
-			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			message.Channel.Guild.Owner = *ptr_owner
-			message.Channel.Guild.Prunes = PruneManager{
-				Guild: &message.Channel.Guild,
-			}
-			message.Channel.Guild.Me = localGuildMember{
-				GuildId: message.Channel.GuildID,
-			}
-			message.Channel.Guild.Roles = RoleManager{
-				GuildID: message.Channel.GuildID,
-			}
-			c.Emit("MESSAGE_UPDATE", message)
-		case "MESSAGE_REACTION_ADD":
-			var message Message
-			json.Unmarshal(payload.Data, &message)
-			ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
-			if err != nil {
-				return err
-			}
-			if ptr_channel == nil {
-				ptr_channel = &TextChannel{}
-			}
-			message.Channel = *ptr_channel
-			ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			message.Channel.Guild.Owner = *ptr_owner
-			message.Channel.Guild.Prunes = PruneManager{
-				Guild: &message.Channel.Guild,
-			}
-			message.Channel.Guild.Me = localGuildMember{
-				GuildId: message.Channel.GuildID,
-			}
-			message.Channel.Guild.Roles = RoleManager{
-				GuildID: message.Channel.GuildID,
-			}
-			c.Emit("MESSAGE_REACTION_ADD", message)
-		case "GUILD_CREATE":
-			var guild Guild
-			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			guild.Owner = *ptr_owner
-			guild.Prunes = PruneManager{
-				Guild: &guild,
-			}
-			// c.guildCache[guild.ID] = guild
-			guild.Me = localGuildMember{
-				GuildId: guild.ID,
-			}
-			guild.Roles = RoleManager{
-				GuildID: guild.ID,
-			}
-			c.Emit("GUILD_CREATE", guild)
-		case "GUILD_DELETE":
-			var guild Guild
-			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			guild.Owner = *ptr_owner
-			guild.Me = localGuildMember{
-				GuildId: guild.ID,
-			}
-			guild.Roles = RoleManager{
-				GuildID: guild.ID,
-			}
-			c.Emit("GUILD_DELETE", guild)
-		case "GUILD_UPDATE":
-			var guild Guild
-			json.Unmarshal(payload.Data, &guild)
-			ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
-			if err != nil {
-				return err
-			}
-			if ptr_owner == nil {
-				ptr_owner = &GuildMember{}
-			}
-			guild.Owner = *ptr_owner
-			guild.Prunes = PruneManager{
-				Guild: &guild,
-			}
-			guild.Me = localGuildMember{
-				GuildId: guild.ID,
-			}
-			guild.Roles = RoleManager{
-				GuildID: guild.ID,
-			}
-			c.Emit("GUILD_UPDATE", guild)
-		case "GUILD_ROLE_CREATE":
-			var role Role
-			err := json.Unmarshal(payload.Data, &role)
-			if err != nil {
-				return err
-			}
-			c.Emit("GUILD_ROLE_CREATE", role)
-		case "GUILD_ROLE_DELETE":
-			var role Role
-			err := json.Unmarshal(payload.Data, &role)
-			if err != nil {
-				return err
-			}
-			// botMember, err := role.Guild.GetMemberByID(c.User.ID)
-			// if err != nil {
-			//   return err
-			// }
-			// guild.Me = *botMember
+type PresenceUpdate struct {
+	Since      int64      `json:"since,omitempty"`
+	Activities []Activity `json:"activities"`
+	Status     string     `json:"status"`
+	AFK        bool       `json:"afk"`
+}
 
-			c.Emit("GUILD_ROLE_DELETE", role)
-		case "GUILD_ROLE_UPDATE":
-			var role Role
-			err := json.Unmarshal(payload.Data, &role)
-			if err != nil {
-				return err
+func (c *Client) Connect() error {
+	c.ws = newWebSocket()
+	c.wschannel = make(chan webSocketPayload)
+	go func() {
+		c.ws.Connect(c.Token, c.Intents, c.wschannel)
+		close(c.wschannel)
+	}()
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("panic recovered:", r)
 			}
-			c.Emit("GUILD_ROLE_UPDATE", role)
-		case "CHANNEL_CREATE":
-			var channel BaseChannel
-			err := json.Unmarshal(payload.Data, &channel)
-			if err != nil {
-				return err
+		}()
+		for payload := range c.wschannel {
+			if payload.OP == 0 {
+				switch payload.EventName {
+				case "READY":
+					var thing map[string]any
+					err := json.Unmarshal(payload.Data, &thing)
+					if err != nil {
+						continue
+					}
+					var userData map[string]any
+					userData = thing["user"].(map[string]any)
+					c.User = &User{
+						Base: Base{
+							ID: toString(userData["id"]),
+						},
+						Username:      toString(userData["username"]),
+						Discriminator: toString(userData["discriminator"]),
+						AvatarHash:    toStringPtr(userData["avatar"]),
+						Bot:           true,
+						Global_Name:   toStringPtr(userData["global_name"]),
+						Flags:         toIntPtr(userData["flags"]),
+						VerifiedBot:   toBoolPtr(userData["verified"]),
+					}
+					close(c.ReadyChan)
+					c.Emit("READY", c)
+				case "MESSAGE_CREATE":
+					var message Message
+					json.Unmarshal(payload.Data, &message)
+					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					if err != nil {
+						continue
+					}
+					if ptr_channel == nil {
+						ptr_channel = &TextChannel{}
+					}
+					message.Channel = *ptr_channel
+					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					message.Channel.Guild.Owner = *ptr_owner
+					message.Channel.Guild.Prunes = PruneManager{
+						Guild: &message.Channel.Guild,
+					}
+					message.Channel.Guild.Me = localGuildMember{
+						GuildId: message.Channel.GuildID,
+					}
+					message.Channel.Guild.Roles = RoleManager{
+						GuildID: message.Channel.GuildID,
+					}
+					c.Emit("MESSAGE_CREATE", message)
+				case "MESSAGE_UPDATE":
+					var message Message
+					fmt.Println(string(payload.Data))
+					json.Unmarshal(payload.Data, &message)
+					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					if err != nil {
+						continue
+					}
+					if ptr_channel == nil {
+						ptr_channel = &TextChannel{}
+					}
+					message.Channel = *ptr_channel
+					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					message.Channel.Guild.Owner = *ptr_owner
+					message.Channel.Guild.Prunes = PruneManager{
+						Guild: &message.Channel.Guild,
+					}
+					message.Channel.Guild.Me = localGuildMember{
+						GuildId: message.Channel.GuildID,
+					}
+					message.Channel.Guild.Roles = RoleManager{
+						GuildID: message.Channel.GuildID,
+					}
+					c.Emit("MESSAGE_UPDATE", message)
+				case "MESSAGE_REACTION_ADD":
+					var message Message
+					json.Unmarshal(payload.Data, &message)
+					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					if err != nil {
+						continue
+					}
+					if ptr_channel == nil {
+						ptr_channel = &TextChannel{}
+					}
+					message.Channel = *ptr_channel
+					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					message.Channel.Guild.Owner = *ptr_owner
+					message.Channel.Guild.Prunes = PruneManager{
+						Guild: &message.Channel.Guild,
+					}
+					message.Channel.Guild.Me = localGuildMember{
+						GuildId: message.Channel.GuildID,
+					}
+					message.Channel.Guild.Roles = RoleManager{
+						GuildID: message.Channel.GuildID,
+					}
+					c.Emit("MESSAGE_REACTION_ADD", message)
+				case "GUILD_CREATE":
+					var guild Guild
+					json.Unmarshal(payload.Data, &guild)
+					ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					guild.Owner = *ptr_owner
+					guild.Prunes = PruneManager{
+						Guild: &guild,
+					}
+					// c.guildCache[guild.ID] = guild
+					guild.Me = localGuildMember{
+						GuildId: guild.ID,
+					}
+					guild.Roles = RoleManager{
+						GuildID: guild.ID,
+					}
+					c.Emit("GUILD_CREATE", guild)
+				case "GUILD_DELETE":
+					var guild Guild
+					json.Unmarshal(payload.Data, &guild)
+					ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					guild.Owner = *ptr_owner
+					guild.Me = localGuildMember{
+						GuildId: guild.ID,
+					}
+					guild.Roles = RoleManager{
+						GuildID: guild.ID,
+					}
+					c.Emit("GUILD_DELETE", guild)
+				case "GUILD_UPDATE":
+					var guild Guild
+					json.Unmarshal(payload.Data, &guild)
+					ptr_owner, err := guild.GetMemberByID(guild.OwnerID)
+					if err != nil {
+						continue
+					}
+					if ptr_owner == nil {
+						ptr_owner = &GuildMember{}
+					}
+					guild.Owner = *ptr_owner
+					guild.Prunes = PruneManager{
+						Guild: &guild,
+					}
+					guild.Me = localGuildMember{
+						GuildId: guild.ID,
+					}
+					guild.Roles = RoleManager{
+						GuildID: guild.ID,
+					}
+					c.Emit("GUILD_UPDATE", guild)
+				case "GUILD_ROLE_CREATE":
+					var role Role
+					err := json.Unmarshal(payload.Data, &role)
+					if err != nil {
+						continue
+					}
+					c.Emit("GUILD_ROLE_CREATE", role)
+				case "GUILD_ROLE_DELETE":
+					var role Role
+					err := json.Unmarshal(payload.Data, &role)
+					if err != nil {
+						continue
+					}
+					// botMember, err := role.Guild.GetMemberByID(c.User.ID)
+					// if err != nil {
+					//   return err
+					// }
+					// guild.Me = *botMember
+
+					c.Emit("GUILD_ROLE_DELETE", role)
+				case "GUILD_ROLE_UPDATE":
+					var role Role
+					err := json.Unmarshal(payload.Data, &role)
+					if err != nil {
+						continue
+					}
+					c.Emit("GUILD_ROLE_UPDATE", role)
+				case "CHANNEL_CREATE":
+					var channel BaseChannel
+					err := json.Unmarshal(payload.Data, &channel)
+					if err != nil {
+						continue
+					}
+					channel.Guild.Me = localGuildMember{
+						GuildId: channel.GuildID,
+					}
+					channel.Guild.Prunes = PruneManager{
+						Guild: &channel.Guild,
+					}
+					channel.Guild.Roles = RoleManager{
+						GuildID: channel.GuildID,
+					}
+					c.Emit("CHANNEL_CREATE", channel)
+				default:
+					fmt.Println("Event:", payload.EventName)
+				}
 			}
-			channel.Guild.Me = localGuildMember{
-				GuildId: channel.GuildID,
-			}
-			channel.Guild.Prunes = PruneManager{
-				Guild: &channel.Guild,
-			}
-			channel.Guild.Roles = RoleManager{
-				GuildID: channel.GuildID,
-			}
-			c.Emit("CHANNEL_CREATE", channel)
-		default:
-			fmt.Println(payload.EventName)
 		}
-	}
+	}()
 	return nil
 }
 
@@ -353,6 +375,27 @@ func (c Client) LeaveGuild(GuildID string) error {
 		return fmt.Errorf("error: got status code %d while leaving guild", res.StatusCode)
 	}
 	return nil
+}
+
+func (c Client) SetPresence(Options PresenceUpdate) error {
+
+	select {
+	case <-c.ReadyChan:
+		// Ready, on continue
+	case <-time.After(10 * time.Second):
+		return fmt.Errorf("timeout waiting for ready")
+	}
+
+	for i := range Options.Activities {
+		if !(Options.Activities[i].CreatedAt > 0) {
+			Options.Activities[i].CreatedAt = time.Now().Unix() // <-- millisecondes ici !
+		}
+	}
+	err := c.ws.SendEvent(3, Options)
+	if err != nil {
+		fmt.Println("Erreur SendEvent:", err)
+	}
+	return err
 }
 
 // func (c Client) Edit()
