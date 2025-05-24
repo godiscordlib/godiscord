@@ -37,3 +37,5 @@
 -   ❌ Guild Widget things
 -   ✅ Get VanityURL
 -   ❌ Some welcome things
+
+# ADD DOCUMENTATION & COMMENTS

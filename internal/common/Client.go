@@ -78,6 +78,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Me = localGuildMember{
 				GuildId: message.Channel.GuildID,
 			}
+			message.Channel.Guild.Roles = RoleManager{
+				GuildID: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_CREATE", message)
 		case "MESSAGE_UPDATE":
 			var message Message
@@ -105,6 +108,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Me = localGuildMember{
 				GuildId: message.Channel.GuildID,
 			}
+			message.Channel.Guild.Roles = RoleManager{
+				GuildID: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_UPDATE", message)
 		case "MESSAGE_REACTION_ADD":
 			var message Message
@@ -131,6 +137,9 @@ func (c Client) Connect() error {
 			message.Channel.Guild.Me = localGuildMember{
 				GuildId: message.Channel.GuildID,
 			}
+			message.Channel.Guild.Roles = RoleManager{
+				GuildID: message.Channel.GuildID,
+			}
 			c.Emit("MESSAGE_REACTION_ADD", message)
 		case "GUILD_CREATE":
 			var guild Guild
@@ -150,6 +159,9 @@ func (c Client) Connect() error {
 			guild.Me = localGuildMember{
 				GuildId: guild.ID,
 			}
+			guild.Roles = RoleManager{
+				GuildID: guild.ID,
+			}
 			c.Emit("GUILD_CREATE", guild)
 		case "GUILD_DELETE":
 			var guild Guild
@@ -164,6 +176,9 @@ func (c Client) Connect() error {
 			guild.Owner = *ptr_owner
 			guild.Me = localGuildMember{
 				GuildId: guild.ID,
+			}
+			guild.Roles = RoleManager{
+				GuildID: guild.ID,
 			}
 			c.Emit("GUILD_DELETE", guild)
 		case "GUILD_UPDATE":
@@ -182,6 +197,9 @@ func (c Client) Connect() error {
 			}
 			guild.Me = localGuildMember{
 				GuildId: guild.ID,
+			}
+			guild.Roles = RoleManager{
+				GuildID: guild.ID,
 			}
 			c.Emit("GUILD_UPDATE", guild)
 		case "GUILD_ROLE_CREATE":
@@ -219,6 +237,12 @@ func (c Client) Connect() error {
 			}
 			channel.Guild.Me = localGuildMember{
 				GuildId: channel.GuildID,
+			}
+			channel.Guild.Prunes = PruneManager{
+				Guild: &channel.Guild,
+			}
+			channel.Guild.Roles = RoleManager{
+				GuildID: channel.GuildID,
 			}
 			c.Emit("CHANNEL_CREATE", channel)
 		default:

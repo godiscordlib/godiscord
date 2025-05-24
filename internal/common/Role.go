@@ -32,4 +32,5 @@ type EditRoleOptions struct {
 	Hoisted      bool   `json:"hoist"`
 	UnicodeEmoji string `json:"unicode_string,omitempty"`
 	Mentionable  bool   `json:"mentionable,omitempty"`
+	Reason       string
 }
