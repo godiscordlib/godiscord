@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AYn0nyme/godiscord/internal/enums"
+	"godiscord.foo.ng/lib/internal/enums"
 )
 
 type TextChannel struct {

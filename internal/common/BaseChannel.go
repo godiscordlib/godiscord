@@ -1,6 +1,6 @@
 package common
 
-import "github.com/AYn0nyme/godiscord/internal/enums"
+import "godiscord.foo.ng/lib/internal/enums"
 
 type BaseChannel struct {
 	Base

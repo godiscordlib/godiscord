@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AYn0nyme/godiscord/internal/enums"
+	"godiscord.foo.ng/lib/internal/enums"
 )
 
 type Client struct {

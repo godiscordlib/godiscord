@@ -10,7 +10,7 @@
 ## 📦 Installation
 
 ```bash
-go get github.com/AYn0nyme/godiscord
+go get godiscord.foo.ng/lib/
 ```
 
 ## 🧑‍💻 Example usage
@@ -23,9 +23,9 @@ package main
 import (
     "fmt"
     "os"
-    "github.com/AYn0nyme/godiscord/client"
-    "github.com/AYn0nyme/godiscord/internal/common"
-    "github.com/AYn0nyme/godiscord/internal/enums"
+    "godiscord.foo.ng/lib/client"
+    "godiscord.foo.ng/lib/internal/common"
+    "godiscord.foo.ng/lib/internal/enums"
 )
 
 func main() {

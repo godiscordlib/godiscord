@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AYn0nyme/godiscord/client"
-	"github.com/AYn0nyme/godiscord/internal/common"
-	"github.com/AYn0nyme/godiscord/internal/enums"
+	"godiscord.foo.ng/lib/client"
+	"godiscord.foo.ng/lib/internal/common"
+	"godiscord.foo.ng/lib/internal/enums"
 )
 
 func main() {

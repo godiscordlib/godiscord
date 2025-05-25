@@ -1,6 +1,6 @@
 package common
 
-import "github.com/AYn0nyme/godiscord/internal/enums"
+import "godiscord.foo.ng/lib/internal/enums"
 
 type Activity struct {
 	Name       string              `json:"name"`

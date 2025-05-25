@@ -1,4 +1,4 @@
-module github.com/AYn0nyme/godiscord
+module godiscord.foo.ng/lib
 
 go 1.23.5
 

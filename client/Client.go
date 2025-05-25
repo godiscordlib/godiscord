@@ -3,8 +3,8 @@ package client
 import (
 	"os"
 
-	"github.com/AYn0nyme/godiscord/internal/common"
-	"github.com/AYn0nyme/godiscord/internal/enums"
+	"godiscord.foo.ng/lib/internal/common"
+	"godiscord.foo.ng/lib/internal/enums"
 )
 
 func NewClient(Token string, Intents ...enums.GatewayIntent) common.Client {
