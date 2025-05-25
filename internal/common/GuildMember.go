@@ -70,3 +70,25 @@ type EditGuildMemberOptions struct {
 func (gm GuildMember) Edit(Options EditGuildMemberOptions) {
 
 }
+
+func (gm GuildMember) Kick(Reason ...string) error {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.RoleManager.GuildID, gm.User.ID), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", getReason(Reason...))
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 204 {
+		defer res.Body.Close()
+		body, err := io.ReadAll(res.Body)
+		if err != nil {
+			return err
+		}
+		return errors.New(string(body))
+	}
+	return nil
+}
