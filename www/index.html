@@ -24,8 +24,11 @@
 
   <link rel="icon" href="/static/img/favicon.webp" />
   <link rel="preload" href="/static/font/Inter.ttf" as="font" type="font/ttf" crossorigin="anonymous">
-  <link rel="stylesheet" href="/static/css/default.css">
-  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="preload" href="/static/css/styles.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="/static/css/styles.min.css">
+  </noscript>
+  <link rel="stylesheet" href="/static/css/styles.min.css">
 </head>
 
 <body>

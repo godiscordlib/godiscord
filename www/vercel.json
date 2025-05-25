@@ -1,7 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/lib", "destination": "/pkg.html"
+      "source": "/lib",
+      "destination": "/pkg.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
