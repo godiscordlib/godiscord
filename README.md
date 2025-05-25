@@ -61,6 +61,12 @@ func main() {
 - **Message handling**: send and receive messages.
 - **Webhooks**, **embeds**, and more to come.
 
+## 🧑‍💻 Contribute
+
+- First `git clone https://github.com/AYn0nyme/godiscord`
+- Then, install [minify](https://github.com/tdewolff/minify/releases)
+- And you're good to **Go** 😄
+
 ## 📜 License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
