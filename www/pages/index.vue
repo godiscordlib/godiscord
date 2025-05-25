@@ -1,11 +1,8 @@
 <template>
     <div class="h-screen text-blue-100 w-full bg-zinc-900 flex justify-center py-4">
-        <div class="">
+        <div class="flex flex-col items-center">
             <NuxtImg src="/godiscord.webp" width="144" height="144" />
-            <h2>godiscord – Simple. Powerful. <span class="text-primary">Go</span>.</h2>
-        </div>
-        <div class="bg-primary text-white font-custom p-4">
-            Hello thème custom ! 🌈
+            <h2 class="text-xl">godiscord – Simple. Powerful. <span class="text-[#00ADD8]">Go</span>.</h2>
         </div>
     </div>
 </template>

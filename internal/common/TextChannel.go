@@ -17,6 +17,7 @@ type TextChannel struct {
 	BaseChannel
 }
 
+// Sends a message in the textchannel
 func (t BaseChannel) Send(Data any) (*Message, error) {
 	if t.Type != enums.TextChannel {
 		return nil, errors.New("error: wrong channel type")

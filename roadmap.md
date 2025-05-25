@@ -37,5 +37,31 @@
 -   ❌ Guild Widget things
 -   ✅ Get VanityURL
 -   ❌ Some welcome things
+-   ❌ Emoji/Stickers Utilities
+-   ❌ Guild Scheduled Events
 
 # ADD DOCUMENTATION & COMMENTS
+
+# OTHERS:
+-   ❌ Slash Commands
+-   ❌ Voice Discord API
+-   ❌ Components:
+    -   Buttons
+    -   Select Menus
+    -   Modals
+-   ❌ Components V2
+-   ❌ Threads
+-   ❌ Context Menus
+-   ❌ Autocomplete
+-   ❌ Perms V2?
+-   ❌ AutoMod
+-   ❌ Localizations
+-   ❌ Forums
+-   ❌ Monetization
+-   ❌ User Apps
+-   ❌ Polls
+-   ❌ Forwarding
+-   ❌ App Emoji
+
+# MISC:
+Seperate project into organized folders

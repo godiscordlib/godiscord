@@ -11,6 +11,9 @@ import (
 	"godiscord.foo.ng/lib/internal/enums"
 )
 
+const API_VERSION = "10"
+const API_URL = "https://discord.com/api/v" + API_VERSION
+
 type Client struct {
 	*User
 	Base

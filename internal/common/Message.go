@@ -87,8 +87,6 @@ type payloadMessageReference struct {
 	Type int    `json:"type"`
 }
 
-const API_URL = "https://discord.com/api/v10"
-
 func (m Message) Reply(Data any) error {
 	switch data := Data.(type) {
 	case string:
