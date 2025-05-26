@@ -65,7 +65,6 @@ func main() {
 ## 🧑‍💻 Contribute
 
 - First `git clone https://github.com/AYn0nyme/godiscord`
-- Then, install [minify](https://github.com/tdewolff/minify/releases)
 - And you're good to **Go** 😄
 
 ## 📜 License
