@@ -25,7 +25,7 @@ import (
     "os"
     "godiscord.foo.ng/lib/client"
     "godiscord.foo.ng/lib/internal/common"
-    "godiscord.foo.ng/lib/internal/enums"
+    "package typesgodiscord.foo.ng/lib/internal/classes"
 )
 
 func main() {

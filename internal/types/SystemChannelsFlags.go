@@ -1,0 +1,12 @@
+package types
+
+type SystemChannelFlag int
+
+const (
+	SCF_SuppressJoinNotifications SystemChannelFlag = 1 << iota
+	SCF_SuppressPremiumSubscriptions
+	SCF_SuppressGuildReminderNotifications
+	SCF_SuppressJoinNotificationReplies
+	SCF_SuppressRoleSubscriptionPurchaseNotifications
+	SCF_SuppressRoleSubscriptionPurchaseNotificationReplies
+)

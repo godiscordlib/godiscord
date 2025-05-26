@@ -23,6 +23,7 @@
 -   ❌ Edit Bot GuildMember
 -   ✅ Get Guild Ban(s)
 -   ✅ Create Ban
+-   ✅ Kick
 -   ✅ Unban
 -   ✅ Bulk Ban
 -   ✅ Get Role(s)
