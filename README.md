@@ -1,7 +1,7 @@
 # ⚠️ Project still under construction, bugs may occur.
 
 <p align="center" style="margin-bottom: 0px !important;">
-  <img src="./www/static/img/logo@128x128.webp">
+  <img src="./www/public/godiscord.webp" width="144" height="144">
 </p>
 <h1 align="center" style="margin-top: 0px;">godiscord</h1>
 
