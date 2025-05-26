@@ -21,38 +21,39 @@ Here is a complete example of a Discord bot in Go using `godiscord`:
 package main
 
 import (
-    "fmt"
-    "os"
-    "godiscord.foo.ng/lib/client"
-    "godiscord.foo.ng/lib/internal/common"
-    "package typesgodiscord.foo.ng/lib/internal/classes"
+	"fmt"
+	"os"
+	"strings"
+
+	"godiscord.foo.ng/lib/internal/types"
+	"godiscord.foo.ng/lib/pkg/classes"
+	"godiscord.foo.ng/lib/pkg/enums"
 )
 
 func main() {
-    Token, err := os.ReadFile("token.txt")
-    if err != nil {
-        panic(err)
-    }
-    Client := client.NewClient(string(Token), enums.GI_MessageContent, enums.GI_Guilds, enums.GI_GuildMessages)
-    
-    // READY event
-    Client.On("READY", func(args ...any) {
-        c := args[0].(common.Client)
-        fmt.Println(c.Username, "is ready")
-    })
-    
-    // React to messages
-    Client.On("MESSAGE_CREATE", func(args ...any) {
-        Message := args[0].(common.Message)
-        if Message.Author.Bot {
-            return
-        }
-        Message.React('🧙')
-    })
-    
-    // Connect to Discord
-    Client.Connect()
+	token, err := os.ReadFile("token.txt")
+	if err != nil {
+		panic(err)
+	}
+	Client := classes.Client{
+		Intents: []types.GatewayIntent{
+			enums.GatewayIntent.Guilds,
+			enums.GatewayIntent.GuildMessages,
+			enums.GatewayIntent.MessageContent,
+		},
+	}
+
+	Client.On("READY", func(args ...any) {
+		c := args[0].(*classes.Client)
+		fmt.Println(c.Username, "is ready")
+	})
+	Client.On("MESSAGE_CREATE", func(args ...any) {
+		message := args[0].(classes.Message)
+		message.Reply("Hi!")
+	})
+	Client.Connect(strings.TrimSpace(string(token)))
 }
+
 ```
 
 ## 🛠️ Features

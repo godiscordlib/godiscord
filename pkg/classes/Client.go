@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"godiscord.foo.ng/lib/internal/types"
@@ -16,13 +17,11 @@ const API_URL = "https://discord.com/api/v" + API_VERSION
 
 type Client struct {
 	*User
-	Base
 	*EventManager
-	Token     string
-	Intents   int
+	Intents   []types.GatewayIntent
 	ws        *WebSocket
 	wschannel chan webSocketPayload
-	ReadyChan chan struct{}
+	readyChan chan struct{}
 	// guildCache map[string]Guild
 }
 
@@ -38,11 +37,12 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func (c *Client) Connect() error {
+func (c *Client) Connect(Token string) error {
 	c.ws = newWebSocket()
 	c.wschannel = make(chan webSocketPayload)
+	os.Setenv("GODISCORD_TOKEN", Token)
 	go func() {
-		c.ws.Connect(c.Token, c.Intents, c.wschannel)
+		c.ws.Connect(Token, c.Intents, c.wschannel)
 		close(c.wschannel)
 	}()
 	go func() {
@@ -74,7 +74,7 @@ func (c *Client) Connect() error {
 						Flags:         toIntPtr(userData["flags"]),
 						VerifiedBot:   toBoolPtr(userData["verified"]),
 					}
-					close(c.ReadyChan)
+					close(c.readyChan)
 					c.Emit("READY", c)
 				case "MESSAGE_CREATE":
 					var message Message
@@ -282,7 +282,7 @@ func (c Client) GetTextChannelByID(ID string) (*TextChannel, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Authorization", "Bot "+c.Token)
+	request.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
 	res, err := http.DefaultClient.Do(request)
 	if err != nil || res.StatusCode != 200 {
 		return nil, err
@@ -313,7 +313,7 @@ func (c Client) GetGuildByID(ID string) (*Guild, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Set("Authorization", "Bot "+c.Token)
+	request.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
 	res, err := http.DefaultClient.Do(request)
 	if err != nil || res.StatusCode != 200 {
 		return nil, err
@@ -339,7 +339,7 @@ func (c Client) CreateGuild(Options CreateGuildOptions) (*Guild, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "Bot "+c.Token)
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
 	req.Header.Set("Content-Type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -366,7 +366,7 @@ func (c Client) LeaveGuild(GuildID string) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "Bot "+c.Token)
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -383,7 +383,7 @@ func (c Client) LeaveGuild(GuildID string) error {
 func (c Client) SetPresence(Options PresenceUpdate) error {
 
 	select {
-	case <-c.ReadyChan:
+	case <-c.readyChan:
 		// Ready, on continue
 	case <-time.After(10 * time.Second):
 		return fmt.Errorf("timeout waiting for ready")

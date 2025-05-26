@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"godiscord.foo.ng/lib/internal/types"
 )
 
 type WebSocket struct {
@@ -37,7 +38,11 @@ func newWebSocket() *WebSocket {
 	return w
 }
 
-func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan webSocketPayload) {
+func (w *WebSocket) Connect(BotToken string, Intents []types.GatewayIntent, WebSocketChannel chan webSocketPayload) {
+	var intents int
+	for _, intent := range Intents {
+		intents += int(intent)
+	}
 	_, message, err := w.conn.ReadMessage()
 	if err != nil {
 		log.Fatalln("Error reading Hello", err)
@@ -83,7 +88,7 @@ func (w *WebSocket) Connect(BotToken string, Intents int, WebSocketChannel chan 
 			Browser: "godiscord",
 			Device:  "godiscord",
 		},
-		Intents: Intents,
+		Intents: intents,
 	}
 	identifyPayload := &webSocketPayload{
 		OP:   2,
