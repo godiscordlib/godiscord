@@ -4,9 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"unicode"
@@ -70,80 +73,144 @@ type Message struct {
 	// ChannelMentions  []ChannelMention `json:"mention_channels"`
 }
 type MessageData struct {
-	Content    string      `json:"content"`
-	Embeds     []Embed     `json:"embeds"`
-	Flags      int         `json:"flags"`
-	Components []ActionRow `json:"components"`
+	Content     string       `json:"content"`
+	Embeds      []Embed      `json:"embeds,omitempty"`
+	Flags       int          `json:"flags,omitempty"`
+	Components  []ActionRow  `json:"components,omitempty"`
+	Attachments []Attachment `json:"attachment,omitempty"`
+	Files       []string     `json:"files,omitempty"`
 }
 type payloadMessage struct {
-	Content    string                   `json:"content"`
-	Embeds     []Embed                  `json:"embeds"`
-	Flags      int                      `json:"flags"`
-	Components []ActionRow              `json:"components"`
-	Reference  *payloadMessageReference `json:"message_reference,omitempty"`
+	Content     string                   `json:"content"`
+	Embeds      []Embed                  `json:"embeds,omitempty"`
+	Flags       int                      `json:"flags,omitempty"`
+	Components  []ActionRow              `json:"components,omitempty"`
+	Attachments []Attachment             `json:"attachment,omitempty"`
+	Files       []string                 `json:"files,omitempty"`
+	Reference   *payloadMessageReference `json:"message_reference,omitempty"`
 }
 type payloadMessageReference struct {
 	ID   string `json:"message_id"`
 	Type int    `json:"type"`
 }
 
-func (m Message) Reply(Data any) error {
-	switch data := Data.(type) {
+func (m Message) Reply(data any) error {
+	var req *http.Request
+	var contentType string
+	var body io.Reader
+
+	switch v := data.(type) {
 	case string:
-		message := payloadMessage{
-			Content: data,
+		payload := payloadMessage{
+			Content: v,
 			Reference: &payloadMessageReference{
 				ID:   m.ID,
 				Type: 0,
 			},
 		}
+		buf := new(bytes.Buffer)
+		json.NewEncoder(buf).Encode(payload)
+		body = buf
+		contentType = "application/json"
 
-		var payload bytes.Buffer
-		json.NewEncoder(&payload).Encode(message)
-
-		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
-		if err != nil {
-			return err
-		}
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
-		request.Header.Set("Content-Type", "application/json")
-		res, err := http.DefaultClient.Do(request)
-		if err != nil {
-			return err
-		}
-		if res.StatusCode != 200 {
-			return fmt.Errorf("error: got status %d instead of 200 while replying to message", res.StatusCode)
-		}
 	case MessageData:
-		message := payloadMessage{
-			Content:    data.Content,
-			Embeds:     data.Embeds,
-			Components: data.Components,
-			Flags:      data.Flags,
-			Reference: &payloadMessageReference{
-				ID:   m.ID,
-				Type: 0,
-			},
-		}
+		pr, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
 
-		var payload bytes.Buffer
-		json.NewEncoder(&payload).Encode(message)
-		request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID), &payload)
-		if err != nil {
-			return err
-		}
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
-		request.Header.Set("Content-Type", "application/json")
-		res, err := http.DefaultClient.Do(request)
-		if err != nil {
-			return err
-		}
-		if res.StatusCode != 200 {
-			return fmt.Errorf("error: got status %d instead of 200 while replying to message", res.StatusCode)
-		}
+		go func() {
+			defer pw.Close()
+			defer writer.Close()
+
+			// 📎 Ajout des fichiers simples
+			for i, path := range v.Files {
+				file, err := os.Open(path)
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+				part, err := writer.CreateFormFile(fmt.Sprintf("files[%d]", i), filepath.Base(path))
+				if err != nil {
+					file.Close()
+					pw.CloseWithError(err)
+					return
+				}
+				_, err = io.Copy(part, file)
+				file.Close()
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+
+			// 📎 Ajout des attachments (préremplis)
+			for i := range v.Attachments {
+				v.Attachments[i].ID = i
+				file, err := os.Open(v.Attachments[i].FilePath)
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+				part, err := writer.CreateFormFile(fmt.Sprintf("files[%d]", i), v.Attachments[i].FileName)
+				if err != nil {
+					file.Close()
+					pw.CloseWithError(err)
+					return
+				}
+				_, err = io.Copy(part, file)
+				file.Close()
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+
+			// 📝 payload_json
+			msg := payloadMessage{
+				Content:     v.Content,
+				Embeds:      v.Embeds,
+				Components:  v.Components,
+				Flags:       v.Flags,
+				Attachments: v.Attachments,
+				Reference: &payloadMessageReference{
+					ID:   m.ID,
+					Type: 0,
+				},
+			}
+			jsonData, err := json.Marshal(msg)
+			if err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+			writer.WriteField("payload_json", string(jsonData))
+		}()
+
+		body = pr
+		contentType = writer.FormDataContentType()
+	default:
+		return fmt.Errorf("unsupported reply data type: %T", data)
+	}
+
+	url := fmt.Sprintf("%s/channels/%s/messages", API_URL, m.ChannelID)
+	req, err := http.NewRequest(http.MethodPost, url, body)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("Content-Type", contentType)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 300 {
+		resp, _ := io.ReadAll(res.Body)
+		return fmt.Errorf("failed to reply: %d - %s", res.StatusCode, string(resp))
 	}
 	return nil
 }
+
 func (m Message) Post() error {
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages/%s/crosspost", API_URL, m.ChannelID, m.ID), nil)
 	if err != nil {
@@ -443,4 +510,38 @@ func IsEmoji(char rune) bool {
 func IsCustomEmoji(str string) bool {
 	reg := regexp.MustCompile(`^<a?:\w+:\d+>$`)
 	return reg.MatchString(str)
+}
+
+func attachFile(writer *multipart.Writer, fieldName, path string, optionalName ...string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	filename := filepath.Base(path)
+	if len(optionalName) > 0 {
+		filename = optionalName[0]
+	}
+
+	part, err := writer.CreateFormFile(fieldName, filename)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(part, file)
+	return err
+}
+
+func doRequest(req *http.Request) error {
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("error: got status %d while replying to message", res.StatusCode)
+	}
+	return nil
 }

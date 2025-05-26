@@ -8,12 +8,18 @@ type Embed struct {
 	Description string    `json:"description"`
 	URL         string    `json:"url"`
 	Thumbnail   thumnbail `json:"thumbnail"`
+	Image       image     `json:"image"`
 	Timestamp   string    `json:"timestamp"` // ISO8601 timestamp
 	Color       int       `json:"color"`
 	Footer      footer    `json:"footer"`
 	Fields      []field   `json:"fields"`
 }
 type thumnbail struct {
+	URL    string `json:"url"`
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
+}
+type image struct {
 	URL    string `json:"url"`
 	Height int    `json:"height"`
 	Width  int    `json:"width"`
@@ -71,5 +77,12 @@ func (e Embed) SetThumbnail(URL string, Height, Width int) Embed {
 	e.Thumbnail.URL = URL
 	e.Thumbnail.Height = Height
 	e.Thumbnail.Width = Width
+	return e
+}
+
+func (e Embed) SetImage(URL string, Height, Width int) Embed {
+	e.Image.URL = URL
+	e.Image.Height = Height
+	e.Image.Width = Width
 	return e
 }

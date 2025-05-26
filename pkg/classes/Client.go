@@ -31,7 +31,7 @@ type Client struct {
 // }
 
 type PresenceUpdate struct {
-	Since      int64      `json:"since,omitempty"`
+	Since      int64      `json:"since"`
 	Activities []Activity `json:"activities"`
 	Status     string     `json:"status"`
 	AFK        bool       `json:"afk"`
@@ -40,6 +40,7 @@ type PresenceUpdate struct {
 func (c *Client) Connect(Token string) error {
 	c.ws = newWebSocket()
 	c.wschannel = make(chan webSocketPayload)
+	c.readyChan = make(chan struct{})
 	os.Setenv("GODISCORD_TOKEN", Token)
 	go func() {
 		c.ws.Connect(Token, c.Intents, c.wschannel)
@@ -393,6 +394,9 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 		if !(Options.Activities[i].CreatedAt > 0) {
 			Options.Activities[i].CreatedAt = time.Now().Unix() // <-- millisecondes ici !
 		}
+	}
+	if !(Options.Since > 0) {
+		Options.Since = time.Now().Unix()
 	}
 	err := c.ws.SendEvent(3, Options)
 	if err != nil {
