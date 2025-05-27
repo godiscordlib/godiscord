@@ -13,6 +13,7 @@ import (
 type WebSocket struct {
 	conn  *websocket.Conn
 	ready chan struct{}
+	Ping  int64
 }
 type webSocketPayload struct {
 	OP             int             `json:"op"`
@@ -70,10 +71,12 @@ func (w *WebSocket) Connect(BotToken string, Intents []types.GatewayIntent, WebS
 				OP:   1,
 				Data: nil,
 			}
+			beforeSendingHeartBeatTime := time.Now()
 			if err := w.conn.WriteJSON(heartbeat); err != nil {
 				log.Println("Error sending heartbeat :", err)
 				return
 			}
+			w.Ping = time.Since(beforeSendingHeartBeatTime).Milliseconds()
 		}
 	}()
 
