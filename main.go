@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"godiscord.foo.ng/lib/internal/types"
 	"godiscord.foo.ng/lib/pkg/classes"
 	"godiscord.foo.ng/lib/pkg/enums"
 )
@@ -17,19 +16,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Client := classes.Client{
-		Intents: []types.GatewayIntent{
-			enums.GatewayIntent.Guilds,
-			enums.GatewayIntent.GuildMessages,
-			enums.GatewayIntent.MessageContent,
-		},
-		EventManager: classes.NewEventManager(),
-	}
+	Client := classes.NewClient(
+		enums.GatewayIntent.Guilds,
+		enums.GatewayIntent.GuildMessages,
+		enums.GatewayIntent.MessageContent,
+	)
 
 	Client.On("READY", func(args ...any) {
-		c := args[0].(*classes.Client)
+		c := args[0].(classes.Client)
 		fmt.Println(c.Username, "is ready")
-		c.SetPresence(classes.PresenceUpdate{
+		err := c.SetPresence(classes.PresenceUpdate{
 			Activities: []classes.Activity{
 				{
 					Name: "godiscord",
@@ -38,6 +34,10 @@ func main() {
 			},
 			Status: "idle",
 		})
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	})
 	Client.On("MESSAGE_CREATE", func(args ...any) {
 		message := args[0].(classes.Message)
@@ -60,7 +60,9 @@ func main() {
 			message.Reply(strconv.Itoa(int(timeItTook)))
 		}
 	})
-	Client.Connect(strings.TrimSpace(string(token)))
-
-	select {}
+	err = Client.Connect(strings.TrimSpace(string(token)))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

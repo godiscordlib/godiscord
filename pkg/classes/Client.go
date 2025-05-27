@@ -22,6 +22,7 @@ type Client struct {
 	ws        *WebSocket
 	wschannel chan webSocketPayload
 	readyChan chan struct{}
+	done      chan struct{}
 	// guildCache map[string]Guild
 }
 
@@ -37,11 +38,22 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func (c *Client) Connect(Token string) error {
+func NewClient(Intents ...types.GatewayIntent) Client {
+	return Client{
+		EventManager: NewEventManager(),
+		Intents:      Intents,
+	}
+}
+
+func (c Client) Connect(Token string) error {
 	c.ws = newWebSocket()
 	c.wschannel = make(chan webSocketPayload)
 	c.readyChan = make(chan struct{})
-	os.Setenv("GODISCORD_TOKEN", Token)
+	c.done = make(chan struct{})
+	err := os.Setenv("GODISCORD_TOKEN", Token)
+	if err != nil {
+		return err
+	}
 	go func() {
 		c.ws.Connect(Token, c.Intents, c.wschannel)
 		close(c.wschannel)
@@ -275,6 +287,9 @@ func (c *Client) Connect(Token string) error {
 			}
 		}
 	}()
+
+	<-c.done
+
 	return nil
 }
 
