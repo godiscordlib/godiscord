@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -12,9 +13,11 @@ import (
 )
 
 type WebSocket struct {
-	conn  *websocket.Conn
-	ready chan struct{}
-	Ping  int64
+	conn         *websocket.Conn
+	ready        chan struct{}
+	mutex        sync.Mutex
+	lastPingTime time.Time
+	Ping         int64
 }
 type webSocketPayload struct {
 	OP             int             `json:"op"`
@@ -69,19 +72,43 @@ func (w *WebSocket) Connect(BotToken string, Intents []types.GatewayIntent, WebS
 	heartbeat_ticker := time.NewTicker(time.Duration(helloWebSocket.Heartbeats) * time.Millisecond)
 	defer heartbeat_ticker.Stop()
 
+	w.conn.SetPongHandler(func(appData string) error {
+		w.mutex.Lock()
+		w.Ping = time.Since(w.lastPingTime).Milliseconds()
+		w.mutex.Unlock()
+
+		return nil
+	})
+
 	go func() {
+		defer heartbeat_ticker.Stop()
+
 		for range heartbeat_ticker.C {
 			heartbeat := &webSocketPayload{
 				OP:   1,
 				Data: nil,
 			}
-			beforeSendingHeartBeatTime := time.Now()
-			if err := w.conn.WriteJSON(heartbeat); err != nil {
-				log.Println("Error sending heartbeat :", err)
+
+			err := w.conn.WriteJSON(heartbeat)
+			if err != nil {
+				log.Println("❌ Heartbeat failed:", err)
+				// tu pourrais aussi envoyer un signal de reconnexion ici
 				return
 			}
-			w.Ping = time.Since(beforeSendingHeartBeatTime).Milliseconds()
-			fmt.Println(w.Ping)
+
+			w.mutex.Lock()
+			w.lastPingTime = time.Now()
+			w.mutex.Unlock()
+
+			err = w.conn.WriteControl(
+				websocket.PingMessage,
+				[]byte("ping"),
+				time.Now().Add(5*time.Second),
+			)
+			if err != nil {
+				log.Println("❌ Erreur lors de l'envoi du ping :", err)
+				return
+			}
 		}
 	}()
 
