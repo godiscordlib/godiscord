@@ -42,14 +42,14 @@ func NewClient(Intents ...types.GatewayIntent) Client {
 	return Client{
 		EventManager: NewEventManager(),
 		Intents:      Intents,
+		WS:           newWebSocket(),
+		wschannel:    make(chan webSocketPayload),
+		readyChan:    make(chan struct{}),
+		done:         make(chan struct{}),
 	}
 }
 
 func (c Client) Connect(Token string) error {
-	c.WS = newWebSocket()
-	c.wschannel = make(chan webSocketPayload)
-	c.readyChan = make(chan struct{})
-	c.done = make(chan struct{})
 	err := os.Setenv("GODISCORD_TOKEN", Token)
 	if err != nil {
 		return err
@@ -419,6 +419,7 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 }
 
 func (c Client) GetWSPing() int {
+	fmt.Println(c.WS.Ping)
 	return int(c.WS.Ping)
 }
 

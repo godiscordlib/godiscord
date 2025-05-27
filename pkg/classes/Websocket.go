@@ -35,6 +35,7 @@ func newWebSocket() *WebSocket {
 	w := &WebSocket{
 		conn:  conn,
 		ready: make(chan struct{}),
+		Ping:  0,
 	}
 	return w
 }
