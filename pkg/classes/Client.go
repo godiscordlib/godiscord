@@ -19,7 +19,7 @@ type Client struct {
 	*User
 	*EventManager
 	Intents   []types.GatewayIntent
-	ws        *WebSocket
+	WS        *WebSocket
 	wschannel chan webSocketPayload
 	readyChan chan struct{}
 	done      chan struct{}
@@ -46,7 +46,7 @@ func NewClient(Intents ...types.GatewayIntent) Client {
 }
 
 func (c Client) Connect(Token string) error {
-	c.ws = newWebSocket()
+	c.WS = newWebSocket()
 	c.wschannel = make(chan webSocketPayload)
 	c.readyChan = make(chan struct{})
 	c.done = make(chan struct{})
@@ -55,7 +55,7 @@ func (c Client) Connect(Token string) error {
 		return err
 	}
 	go func() {
-		c.ws.Connect(Token, c.Intents, c.wschannel)
+		c.WS.Connect(Token, c.Intents, c.wschannel)
 		close(c.wschannel)
 	}()
 	go func() {
@@ -411,7 +411,7 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 	if !(Options.Since > 0) {
 		Options.Since = time.Now().Unix()
 	}
-	err := c.ws.SendEvent(3, Options)
+	err := c.WS.SendEvent(3, Options)
 	if err != nil {
 		fmt.Println("Erreur SendEvent:", err)
 	}
