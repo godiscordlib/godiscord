@@ -418,6 +418,10 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 	return err
 }
 
+func (c Client) GetWSPing() int {
+	return int(c.WS.Ping)
+}
+
 // func (c Client) Edit()
 
 // func (c Client) GetGuildMembers(Guild Guild) (*[]GuildMember, error) {
