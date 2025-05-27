@@ -120,7 +120,6 @@ func (c Client) Connect(Token string) error {
 					c.Emit("MESSAGE_CREATE", message)
 				case "MESSAGE_UPDATE":
 					var message Message
-					fmt.Println(string(payload.Data))
 					json.Unmarshal(payload.Data, &message)
 					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
 					if err != nil {
@@ -349,7 +348,6 @@ func (c Client) CreateGuild(Options CreateGuildOptions) (*Guild, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(body))
 	body_reader := bytes.NewReader(body)
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/guilds", API_URL), body_reader)
 	if err != nil {
