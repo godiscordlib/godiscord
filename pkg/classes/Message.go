@@ -121,7 +121,6 @@ func (m Message) Reply(data any) error {
 			defer pw.Close()
 			defer writer.Close()
 
-			// 📎 Ajout des fichiers simples
 			for i, path := range v.Files {
 				file, err := os.Open(path)
 				if err != nil {
@@ -142,7 +141,6 @@ func (m Message) Reply(data any) error {
 				}
 			}
 
-			// 📎 Ajout des attachments (préremplis)
 			for i := range v.Attachments {
 				v.Attachments[i].ID = i
 				file, err := os.Open(v.Attachments[i].FilePath)
@@ -164,7 +162,6 @@ func (m Message) Reply(data any) error {
 				}
 			}
 
-			// 📝 payload_json
 			msg := payloadMessage{
 				Content:     v.Content,
 				Embeds:      v.Embeds,
@@ -510,38 +507,4 @@ func IsEmoji(char rune) bool {
 func IsCustomEmoji(str string) bool {
 	reg := regexp.MustCompile(`^<a?:\w+:\d+>$`)
 	return reg.MatchString(str)
-}
-
-func attachFile(writer *multipart.Writer, fieldName, path string, optionalName ...string) error {
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	filename := filepath.Base(path)
-	if len(optionalName) > 0 {
-		filename = optionalName[0]
-	}
-
-	part, err := writer.CreateFormFile(fieldName, filename)
-	if err != nil {
-		return err
-	}
-
-	_, err = io.Copy(part, file)
-	return err
-}
-
-func doRequest(req *http.Request) error {
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("error: got status %d while replying to message", res.StatusCode)
-	}
-	return nil
 }

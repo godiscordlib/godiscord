@@ -6,8 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"godiscord.foo.ng/lib/pkg/enums"
@@ -17,56 +19,117 @@ type TextChannel struct {
 	BaseChannel
 }
 
-// Sends a message in the textchannel
-func (t BaseChannel) Send(Data any) (*Message, error) {
-	if t.Type != enums.ChannelType.TextChannel {
-		return nil, errors.New("error: wrong channel type")
-	}
-	switch data := Data.(type) {
+// Reply sends a message in the text channel
+func (t BaseChannel) Reply(data any) (*Message, error) {
+	var req *http.Request
+	var contentType string
+	var body io.Reader
+	var message Message
+
+	switch v := data.(type) {
 	case string:
-		message := payloadMessage{
-			Content: data,
+		payload := payloadMessage{
+			Content: v,
 		}
+		buf := new(bytes.Buffer)
+		json.NewEncoder(buf).Encode(payload)
+		body = buf
+		contentType = "application/json"
 
-		var payload bytes.Buffer
-		json.NewEncoder(&payload).Encode(message)
-
-		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, t.ID), &payload)
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
-		request.Header.Set("Content-Type", "application/json")
-		http.DefaultClient.Do(request)
 	case MessageData:
-		message := payloadMessage{
-			Content: data.Content,
-			Embeds:  data.Embeds,
-		}
+		pr, pw := io.Pipe()
+		writer := multipart.NewWriter(pw)
 
-		var payload bytes.Buffer
-		json.NewEncoder(&payload).Encode(message)
-		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/channels/%s/messages", API_URL, t.ID), &payload)
-		request.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
-		request.Header.Set("Content-Type", "application/json")
-		http.DefaultClient.Do(request)
+		go func() {
+			defer pw.Close()
+			defer writer.Close()
+
+			for i, path := range v.Files {
+				file, err := os.Open(path)
+				if err != nil {
+					pw.CloseWithError(err)
+				}
+				part, err := writer.CreateFormFile(fmt.Sprintf("files[%d]", i), filepath.Base(path))
+				if err != nil {
+					file.Close()
+					pw.CloseWithError(err)
+					return
+				}
+				_, err = io.Copy(part, file)
+				file.Close()
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+
+			for i := range v.Attachments {
+				v.Attachments[i].ID = i
+				file, err := os.Open(v.Attachments[i].FilePath)
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+				part, err := writer.CreateFormFile(fmt.Sprintf("files[%d]", i), v.Attachments[i].FileName)
+				if err != nil {
+					file.Close()
+					pw.CloseWithError(err)
+					return
+				}
+				_, err = io.Copy(part, file)
+				file.Close()
+				if err != nil {
+					pw.CloseWithError(err)
+					return
+				}
+			}
+
+			msg := payloadMessage{
+				Content:     v.Content,
+				Embeds:      v.Embeds,
+				Components:  v.Components,
+				Flags:       v.Flags,
+				Attachments: v.Attachments,
+			}
+			jsonData, err := json.Marshal(msg)
+			if err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+			err = writer.WriteField("payload_json", string(jsonData))
+			if err != nil {
+				return
+			}
+		}()
+
+		body = pr
+		contentType = writer.FormDataContentType()
+	default:
+		return nil, fmt.Errorf("unsupported reply data type: %T", data)
 	}
-	get_messages_req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/channels/%s/messages?limit=%d", API_URL, t.ID, 1), nil)
+
+	url := fmt.Sprintf("%s/channels/%s/messages", API_URL, t.ID)
+	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
 		return nil, err
 	}
-	get_messages_req.Header.Set("Authorization", fmt.Sprintf("Bot %s", os.Getenv("GODISCORD_TOKEN")))
-	var res_message []Message
-	get_messages_res, err := http.DefaultClient.Do(get_messages_req)
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("Content-Type", contentType)
+
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	defer get_messages_res.Body.Close()
-	get_messages_body, err := io.ReadAll(get_messages_res.Body)
-	if err != nil {
+	defer res.Body.Close()
+
+	resp, _ := io.ReadAll(res.Body)
+	if res.StatusCode >= 300 {
+		return nil, fmt.Errorf("failed to reply: %d - %s", res.StatusCode, string(resp))
+	}
+	if err = json.Unmarshal(resp, &message); err != nil {
 		return nil, err
 	}
-	if err := json.Unmarshal(get_messages_body, &res_message); err != nil {
-		return nil, err
-	}
-	return &res_message[0], nil
+	return &message, nil
 }
 
 func (t BaseChannel) BulkDelete(Messages any) error {
