@@ -29,7 +29,7 @@ type interactionPayloadMessageData struct {
 }
 
 func (bi BaseInteraction) Reply(data any) (*Message, error) {
-	if bi.Type != enums.InteractionType.ChatInput {
+	if bi.Type != enums.InteractionResponseType.ApplicationCommand {
 		return nil, nil
 	}
 	var req *http.Request
