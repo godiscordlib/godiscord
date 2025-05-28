@@ -15,10 +15,13 @@ func main() {
 		panic(err)
 	}
 	Client := classes.NewClient(
+		strings.TrimSpace(string(token)),
 		enums.GatewayIntent.Guilds,
 		enums.GatewayIntent.GuildMessages,
 		enums.GatewayIntent.MessageContent,
 	)
+
+	fmt.Println(err)
 
 	Client.On("READY", func(args ...any) {
 		c := args[0].(classes.Client)
@@ -59,6 +62,9 @@ func main() {
 		// 	message.Reply(strconv.Itoa(int(timeItTook)))
 		// }
 		message := args[0].(classes.Message)
+		if len(strings.Fields(message.Content)) <= 0 {
+			return
+		}
 		//var message_args []string
 		commandName := strings.Fields(message.Content)[0]
 		if len(strings.Fields(message.Content)) > 1 {
@@ -71,7 +77,17 @@ func main() {
 			message.Reply("https://github.com/AYn0nyme/godiscord")
 		}
 	})
-	err = Client.Connect(strings.TrimSpace(string(token)))
+	Client.On("INTERACTION_CREATE", func(args ...any) {
+		interaction := args[0].(classes.BaseInteraction)
+
+		interaction.Reply(classes.MessageData{
+			Embeds: []classes.Embed{
+				classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
+			},
+		})
+	})
+	err = Client.Connect()
+
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -2,7 +2,6 @@ package classes
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"runtime"
 	"sync"
@@ -67,8 +66,6 @@ func (w *WebSocket) Connect(BotToken string, Intents []types.GatewayIntent, WebS
 		log.Fatalln("Error unmarshal Hello:", err)
 	}
 
-	fmt.Println(helloWebSocket.Heartbeats)
-
 	heartbeat_ticker := time.NewTicker(time.Duration(helloWebSocket.Heartbeats) * time.Millisecond)
 	defer heartbeat_ticker.Stop()
 
@@ -106,7 +103,7 @@ func (w *WebSocket) Connect(BotToken string, Intents []types.GatewayIntent, WebS
 				time.Now().Add(5*time.Second),
 			)
 			if err != nil {
-				log.Println("❌ Erreur lors de l'envoi du ping :", err)
+				log.Println("❌ Error while sending ping :", err)
 				return
 			}
 		}

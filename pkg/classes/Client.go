@@ -38,7 +38,8 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func NewClient(Intents ...types.GatewayIntent) Client {
+func NewClient(Token string, Intents ...types.GatewayIntent) Client {
+	os.Setenv("GODISCORD_TOKEN", Token)
 	return Client{
 		EventManager: NewEventManager(),
 		Intents:      Intents,
@@ -49,13 +50,9 @@ func NewClient(Intents ...types.GatewayIntent) Client {
 	}
 }
 
-func (c Client) Connect(Token string) error {
-	err := os.Setenv("GODISCORD_TOKEN", Token)
-	if err != nil {
-		return err
-	}
+func (c Client) Connect() error {
 	go func() {
-		c.WS.Connect(Token, c.Intents, c.wschannel)
+		c.WS.Connect(os.Getenv("GODISCORD_TOKEN"), c.Intents, c.wschannel)
 		close(c.wschannel)
 	}()
 	go func() {
@@ -118,6 +115,11 @@ func (c Client) Connect(Token string) error {
 						GuildID: message.Channel.GuildID,
 					}
 					c.Emit("MESSAGE_CREATE", message)
+				case "INTERACTION_CREATE":
+					var interaction BaseInteraction
+					fmt.Println(string(payload.Data))
+					json.Unmarshal(payload.Data, &interaction)
+					c.Emit("INTERACTION_CREATE", interaction)
 				case "MESSAGE_UPDATE":
 					var message Message
 					json.Unmarshal(payload.Data, &message)

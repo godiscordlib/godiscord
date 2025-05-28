@@ -1,9 +1,14 @@
 package classes
 
+import "godiscord.foo.ng/lib/internal/types"
+
 type BaseInteraction struct {
-	Type int `json:"type"`
+	Type   types.InteractionType `json:"type"`
+	Token  string                `json:"token"`
+	Member GuildMember           `json:"member"`
+	ID     string                `json:"id"`
 }
 
 type BaseComponent interface {
-	GetType() int
+	GetType() types.InteractionType
 }

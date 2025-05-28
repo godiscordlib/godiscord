@@ -5,7 +5,7 @@ import (
 )
 
 type SlashCommandData struct {
-	Base
+	ID          string                `json:"id,omitempty"`
 	Name        string                `json:"name"`
 	Description string                `json:"description"`
 	Type        types.InteractionType `json:"type"`
