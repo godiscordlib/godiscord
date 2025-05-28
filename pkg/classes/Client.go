@@ -117,7 +117,6 @@ func (c Client) Connect() error {
 					c.Emit("MESSAGE_CREATE", message)
 				case "INTERACTION_CREATE":
 					var interaction BaseInteraction
-					fmt.Println(string(payload.Data))
 					json.Unmarshal(payload.Data, &interaction)
 					c.Emit("INTERACTION_CREATE", interaction)
 				case "MESSAGE_UPDATE":
