@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b27b25cb-2f87-4ca9-94a4-5b0c02ff1529" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/slash/register.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/BaseInteraction.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/BaseInteraction.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/Client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/Client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/SlashCommandData.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/SlashCommandData.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/Websocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/Websocket.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
