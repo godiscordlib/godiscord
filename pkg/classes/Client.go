@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"godiscord.foo.ng/lib/internal/types"
+	types2 "godiscord.foo.ng/lib/pkg/types"
 )
 
 const API_VERSION = "10"
@@ -18,7 +18,7 @@ const API_URL = "https://discord.com/api/v" + API_VERSION
 type Client struct {
 	*User
 	*EventManager
-	Intents   []types.GatewayIntent
+	Intents   []types2.GatewayIntent
 	WS        *WebSocket
 	wschannel chan webSocketPayload
 	readyChan chan struct{}
@@ -38,7 +38,7 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func NewClient(Token string, Intents ...types.GatewayIntent) Client {
+func NewClient(Token string, Intents ...types2.GatewayIntent) Client {
 	os.Setenv("GODISCORD_TOKEN", Token)
 	return Client{
 		EventManager: NewEventManager(),
@@ -310,7 +310,7 @@ func (c Client) GetTextChannelByID(ID string) (*TextChannel, error) {
 	defer res.Body.Close()
 	var channel TextChannel
 	json.Unmarshal(body_in_bytes, &channel)
-	if channel.Type != types.TextChannel {
+	if channel.Type != types2.TextChannel {
 		return nil, fmt.Errorf("error: Channel is not a TextChannel")
 	}
 

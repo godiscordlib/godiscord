@@ -1,6 +1,8 @@
 package classes
 
-import "godiscord.foo.ng/lib/internal/types"
+import (
+	"godiscord.foo.ng/lib/pkg/types"
+)
 
 type Webhook struct {
 	Base

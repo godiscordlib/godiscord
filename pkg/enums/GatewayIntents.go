@@ -1,6 +1,8 @@
 package enums
 
-import "godiscord.foo.ng/lib/internal/types"
+import (
+	"godiscord.foo.ng/lib/pkg/types"
+)
 
 var GatewayIntent = struct {
 	Guilds                  types.GatewayIntent

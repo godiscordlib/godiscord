@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"godiscord.foo.ng/lib/internal/types"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 type WebSocket struct {

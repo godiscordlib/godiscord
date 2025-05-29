@@ -1,6 +1,8 @@
 package classes
 
-import "godiscord.foo.ng/lib/internal/types"
+import (
+	"godiscord.foo.ng/lib/pkg/types"
+)
 
 type Attachment struct {
 	ID          int                  `json:"id"`

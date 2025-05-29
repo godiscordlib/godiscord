@@ -14,7 +14,7 @@ import (
 	"strings"
 	"unicode"
 
-	"godiscord.foo.ng/lib/internal/types"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 var emojiRanges = []unicode.RangeTable{

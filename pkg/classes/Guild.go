@@ -9,36 +9,36 @@ import (
 	"net/http"
 	"os"
 
-	"godiscord.foo.ng/lib/internal/types"
+	types2 "godiscord.foo.ng/lib/pkg/types"
 )
 
 type Guild struct {
-	ID                          string                           `json:"id"`
-	Name                        string                           `json:"name"`
-	IconHash                    string                           `json:"icon"`
-	SplashHash                  string                           `json:"splash"`
-	DiscoverySplashHash         string                           `json:"discovery_splash"`
-	AmIOwner                    bool                             `json:"owner"`
-	OwnerID                     string                           `json:"owner_id"`
-	AFKChannelID                string                           `json:"afk_channel_id"`
-	AFKTimeout                  int                              `json:"afk_timeout"`
-	WidgetEnabled               bool                             `json:"widget_enabled"`
-	WidgetChannelID             string                           `json:"wiget_channel_id"`
-	VerificationLevel           int                              `json:"verification_level"`
-	DefaultMessageNotifications types.MessageNotificationLevel   `json:"default_message_notifications"`
-	ExplicitContentFilter       types.ExplicitContentFilterLevel `json:"explicit_content_filter"`
-	Features                    []types.GuildFeature             `json:"features"`
-	CustomURL                   string                           `json:"vanity_url_code"`
-	Description                 string                           `json:"description"`
-	BannerHash                  string                           `json:"banner_hash"`
-	BoostLevel                  int                              `json:"premium_tier"`
-	BoostCount                  int                              `json:"premium_subscription_count"`
-	PreferredLocale             string                           `json:"preferred_locale"`
-	ApproximateMemberCount      int                              `json:"approximate_member_count"`
-	NSFWLevel                   int                              `json:"nsfw_level"`
-	BoostProgressionBarEnabled  bool                             `json:"premium_progress_bar_enabled"`
-	Emojis                      []Emoji                          `json:"emojis"`
-	Channels                    []BaseChannel                    `json:"channels"`
+	ID                          string                            `json:"id"`
+	Name                        string                            `json:"name"`
+	IconHash                    string                            `json:"icon"`
+	SplashHash                  string                            `json:"splash"`
+	DiscoverySplashHash         string                            `json:"discovery_splash"`
+	AmIOwner                    bool                              `json:"owner"`
+	OwnerID                     string                            `json:"owner_id"`
+	AFKChannelID                string                            `json:"afk_channel_id"`
+	AFKTimeout                  int                               `json:"afk_timeout"`
+	WidgetEnabled               bool                              `json:"widget_enabled"`
+	WidgetChannelID             string                            `json:"wiget_channel_id"`
+	VerificationLevel           int                               `json:"verification_level"`
+	DefaultMessageNotifications types2.MessageNotificationLevel   `json:"default_message_notifications"`
+	ExplicitContentFilter       types2.ExplicitContentFilterLevel `json:"explicit_content_filter"`
+	Features                    []types2.GuildFeature             `json:"features"`
+	CustomURL                   string                            `json:"vanity_url_code"`
+	Description                 string                            `json:"description"`
+	BannerHash                  string                            `json:"banner_hash"`
+	BoostLevel                  int                               `json:"premium_tier"`
+	BoostCount                  int                               `json:"premium_subscription_count"`
+	PreferredLocale             string                            `json:"preferred_locale"`
+	ApproximateMemberCount      int                               `json:"approximate_member_count"`
+	NSFWLevel                   int                               `json:"nsfw_level"`
+	BoostProgressionBarEnabled  bool                              `json:"premium_progress_bar_enabled"`
+	Emojis                      []Emoji                           `json:"emojis"`
+	Channels                    []BaseChannel                     `json:"channels"`
 	Owner                       GuildMember
 	Invites                     InviteManager
 	Prunes                      PruneManager
@@ -52,41 +52,41 @@ type Guild struct {
 }
 
 type CreateGuildOptions struct {
-	Name                       string                           `json:"name"`
-	Icon                       string                           `json:"icon,omitempty"`
-	VerificationLevel          types.VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotification types.MessageNotificationLevel   `json:"default_message_notifications,omitempty"`
-	ExplicitLevelFilter        types.ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
-	Roles                      []Role                           `json:"roles,omitempty"`
-	Channels                   []Channel                        `json:"channels,omitempty"`
-	AFKChannelID               string                           `json:"afk_channel_id,omitempty"`
-	AFKTimeout                 int                              `json:"afk_timeout,omitempty"`
-	SystemChannelID            string                           `json:"system_channel_id,omitempty"`
-	SystemChannelFlags         types.SystemChannelFlag          `json:"system_channel_flags,omitempty"`
+	Name                       string                            `json:"name"`
+	Icon                       string                            `json:"icon,omitempty"`
+	VerificationLevel          types2.VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotification types2.MessageNotificationLevel   `json:"default_message_notifications,omitempty"`
+	ExplicitLevelFilter        types2.ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
+	Roles                      []Role                            `json:"roles,omitempty"`
+	Channels                   []Channel                         `json:"channels,omitempty"`
+	AFKChannelID               string                            `json:"afk_channel_id,omitempty"`
+	AFKTimeout                 int                               `json:"afk_timeout,omitempty"`
+	SystemChannelID            string                            `json:"system_channel_id,omitempty"`
+	SystemChannelFlags         types2.SystemChannelFlag          `json:"system_channel_flags,omitempty"`
 }
 type EditGuildOptions struct {
-	AFKChannelID               string                           `json:"afk_channel_id,omitempty"`
-	AFKTimeout                 int                              `json:"afk_timeout,omitempty"`
-	ExplicitLevelFilter        types.ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
-	Name                       string                           `json:"name,omitempty"`
-	Icon                       string                           `json:"icon,omitempty"`
-	VerificationLevel          types.VerificationLevel          `json:"verification_level,omitempty"`
-	DefaultMessageNotification types.MessageNotificationLevel   `json:"default_message_notifications,omitempty"`
-	Roles                      []Role                           `json:"roles,omitempty"`
-	Channels                   []Channel                        `json:"channels,omitempty"`
-	SystemChannelID            string                           `json:"system_channel_id,omitempty"`
-	SystemChannelFlags         types.SystemChannelFlag          `json:"system_channel_flags,omitempty"`
-	OwnerID                    string                           `json:"owner_id,omitempty"` // ONLY IF THE BOT IS THE OWNER OF THE GUILD
-	Splash                     string                           `json:"splash,omitempty"`
-	DiscoverySplash            string                           `json:"discovery_splash,omitempty"`
-	Banner                     string                           `json:"banner,omitempty"`
-	RulesChannelID             string                           `json:"rules_channel_id,omitempty"`          // Only on community guilds
-	PublicUpdatesChannelID     string                           `json:"public_updates_channel_id,omitempty"` // Only on community guilds
-	PreferredLocale            string                           `json:"preferred_locale,omitempty"`          // Only on community guilds
-	Description                string                           `json:"description,omitempty"`               // Only on community guilds
-	SafetyAlertsChannelID      string                           `json:"safety_alerts_channel_id,omitempty"`
-	Features                   []types.GuildFeature             `json:"features,omitempty"`
-	BoostProgressionBarEnabled bool                             `json:"premium_progress_bar_enabled,omitempty"`
+	AFKChannelID               string                            `json:"afk_channel_id,omitempty"`
+	AFKTimeout                 int                               `json:"afk_timeout,omitempty"`
+	ExplicitLevelFilter        types2.ExplicitContentFilterLevel `json:"explicit_content_filter,omitempty"`
+	Name                       string                            `json:"name,omitempty"`
+	Icon                       string                            `json:"icon,omitempty"`
+	VerificationLevel          types2.VerificationLevel          `json:"verification_level,omitempty"`
+	DefaultMessageNotification types2.MessageNotificationLevel   `json:"default_message_notifications,omitempty"`
+	Roles                      []Role                            `json:"roles,omitempty"`
+	Channels                   []Channel                         `json:"channels,omitempty"`
+	SystemChannelID            string                            `json:"system_channel_id,omitempty"`
+	SystemChannelFlags         types2.SystemChannelFlag          `json:"system_channel_flags,omitempty"`
+	OwnerID                    string                            `json:"owner_id,omitempty"` // ONLY IF THE BOT IS THE OWNER OF THE GUILD
+	Splash                     string                            `json:"splash,omitempty"`
+	DiscoverySplash            string                            `json:"discovery_splash,omitempty"`
+	Banner                     string                            `json:"banner,omitempty"`
+	RulesChannelID             string                            `json:"rules_channel_id,omitempty"`          // Only on community guilds
+	PublicUpdatesChannelID     string                            `json:"public_updates_channel_id,omitempty"` // Only on community guilds
+	PreferredLocale            string                            `json:"preferred_locale,omitempty"`          // Only on community guilds
+	Description                string                            `json:"description,omitempty"`               // Only on community guilds
+	SafetyAlertsChannelID      string                            `json:"safety_alerts_channel_id,omitempty"`
+	Features                   []types2.GuildFeature             `json:"features,omitempty"`
+	BoostProgressionBarEnabled bool                              `json:"premium_progress_bar_enabled,omitempty"`
 }
 type BanOptions struct {
 	DeleteMessageSeconds int `json:"delete_message_seconds,omitempty"`

@@ -1,6 +1,8 @@
 package enums
 
-import "godiscord.foo.ng/lib/internal/types"
+import (
+	"godiscord.foo.ng/lib/pkg/types"
+)
 
 var DefaultForumLayout = struct {
 	NotSet      types.DefaultForumLayout

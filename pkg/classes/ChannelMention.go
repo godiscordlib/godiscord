@@ -1,7 +1,7 @@
 package classes
 
 import (
-	"godiscord.foo.ng/lib/internal/types"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 type ChannelMention struct {

@@ -1,13 +1,15 @@
 package classes
 
-import "godiscord.foo.ng/lib/internal/types"
+import (
+	types2 "godiscord.foo.ng/lib/pkg/types"
+)
 
 type Activity struct {
-	Name       string             `json:"name"`
-	Type       types.ActivityType `json:"type"`
-	URL        string             `json:"url,omitempty"`
-	Flags      types.ActivityFlag `json:"flags,omitempty"`
-	CreatedAt  int64              `json:"created_at"`
+	Name       string              `json:"name"`
+	Type       types2.ActivityType `json:"type"`
+	URL        string              `json:"url,omitempty"`
+	Flags      types2.ActivityFlag `json:"flags,omitempty"`
+	CreatedAt  int64               `json:"created_at"`
 	Timestamps struct {
 		Start int64 `json:"start,omitempty"`
 		End   int64 `json:"end,omitempty"`
