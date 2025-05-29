@@ -98,13 +98,18 @@ func (bi BaseInteraction) Reply(data any) (*Message, error) {
 				}
 			}
 
+			var flags int
+			for _, flag := range v.Flags {
+				flags += int(flag)
+			}
+
 			msg := interactionPayloadMessage{
 				Type: 4,
 				Data: interactionPayloadMessageData{
 					Content:     v.Content,
 					Embeds:      v.Embeds,
 					Components:  v.Components,
-					Flags:       v.Flags,
+					Flags:       flags,
 					Attachments: v.Attachments,
 				},
 			}

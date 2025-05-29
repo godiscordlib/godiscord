@@ -84,11 +84,16 @@ func (t BaseChannel) Reply(data any) (*Message, error) {
 				}
 			}
 
+			var flags int
+			for _, flag := range v.Flags {
+				flags += int(flag)
+			}
+
 			msg := payloadMessage{
 				Content:     v.Content,
 				Embeds:      v.Embeds,
 				Components:  v.Components,
-				Flags:       v.Flags,
+				Flags:       flags,
 				Attachments: v.Attachments,
 			}
 			jsonData, err := json.Marshal(msg)

@@ -13,6 +13,8 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"godiscord.foo.ng/lib/internal/types"
 )
 
 var emojiRanges = []unicode.RangeTable{
@@ -73,12 +75,12 @@ type Message struct {
 	// ChannelMentions  []ChannelMention `json:"mention_channels"`
 }
 type MessageData struct {
-	Content     string       `json:"content"`
-	Embeds      []Embed      `json:"embeds,omitempty"`
-	Flags       int          `json:"flags,omitempty"`
-	Components  []ActionRow  `json:"components,omitempty"`
-	Attachments []Attachment `json:"attachment,omitempty"`
-	Files       []string     `json:"files,omitempty"`
+	Content     string              `json:"content"`
+	Embeds      []Embed             `json:"embeds,omitempty"`
+	Flags       []types.MessageFlag `json:"flags,omitempty"`
+	Components  []ActionRow         `json:"components,omitempty"`
+	Attachments []Attachment        `json:"attachment,omitempty"`
+	Files       []string            `json:"files,omitempty"`
 }
 type payloadMessage struct {
 	Content     string                   `json:"content"`
@@ -162,11 +164,16 @@ func (m Message) Reply(data any) error {
 				}
 			}
 
+			var flags int
+			for _, flag := range v.Flags {
+				flags += int(flag)
+			}
+
 			msg := payloadMessage{
 				Content:     v.Content,
 				Embeds:      v.Embeds,
 				Components:  v.Components,
-				Flags:       v.Flags,
+				Flags:       flags,
 				Attachments: v.Attachments,
 				Reference: &payloadMessageReference{
 					ID:   m.ID,
