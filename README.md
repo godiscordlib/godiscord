@@ -23,36 +23,60 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
-	"godiscord.foo.ng/lib/internal/types"
+	_ "github.com/joho/godotenv/autoload"
 	"godiscord.foo.ng/lib/pkg/classes"
 	"godiscord.foo.ng/lib/pkg/enums"
+	"godiscord.foo.ng/lib/pkg/slash"
 )
 
 func main() {
-	token, err := os.ReadFile("token.txt")
-	if err != nil {
-		panic(err)
-	}
-	Client := classes.Client{
-		Intents: []types.GatewayIntent{
-			enums.GatewayIntent.Guilds,
-			enums.GatewayIntent.GuildMessages,
-			enums.GatewayIntent.MessageContent,
+	Client := classes.NewClient(
+		os.Getenv("DISCORD_TOKEN"),
+		enums.GatewayIntent.Guilds,
+		enums.GatewayIntent.GuildMembers,
+		enums.GatewayIntent.GuildMessages,
+		enums.GatewayIntent.GuildModeration,
+		enums.GatewayIntent.MessageContent,
+	)
+
+	slash.RegisterGuildCommands("1375914465064915144", []classes.SlashCommandData{
+		{
+			Name:        "ping",
+			Description: "Pong! Get the ping of the bot",
+			Type:        enums.InteractionType.ChatInput,
 		},
-	}
+	}, "1373794354677813290")
 
 	Client.On("READY", func(args ...any) {
-		c := args[0].(*classes.Client)
-		fmt.Println(c.Username, "is ready")
+		fmt.Println("READY:", args[0].(classes.Client).User.Username)
+		Client.SetPresence(classes.PresenceUpdate{
+			Activities: []classes.Activity{
+				classes.Activity{
+					Name: "godiscord",
+					Type: enums.ActivityType.Streaming,
+					URL:  "https://twitch.tv/godiscord",
+				},
+			},
+			Status: "dnd",
+			AFK:    false,
+		})
 	})
-	Client.On("MESSAGE_CREATE", func(args ...any) {
-		message := args[0].(classes.Message)
-		message.Reply("Hi!")
+
+	Client.On("INTERACTION_CREATE", func(args ...any) {
+		interaction := args[0].(classes.BaseInteraction)
+		if interaction.Data.Name == "ping" {
+			interaction.Reply(classes.MessageData{
+				Embeds: []classes.Embed{
+					classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 **%d**ms", Client.GetWSPing())).SetColor("00ADD8"),
+				},
+			})
+		}
 	})
-	Client.Connect(strings.TrimSpace(string(token)))
+
+	Client.Connect()
 }
+
 
 ```
 
