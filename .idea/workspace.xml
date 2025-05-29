@@ -73,6 +73,11 @@
     ]
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="go build godiscord.foo.ng/lib" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
       <module name="godiscord" />

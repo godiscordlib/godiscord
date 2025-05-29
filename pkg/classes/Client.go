@@ -399,7 +399,6 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 
 	select {
 	case <-c.readyChan:
-		// Ready, on continue
 	case <-time.After(10 * time.Second):
 		return fmt.Errorf("timeout waiting for ready")
 	}
@@ -420,7 +419,6 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 }
 
 func (c Client) GetWSPing() int {
-	fmt.Println(c.WS.Ping)
 	return int(c.WS.Ping)
 }
 
