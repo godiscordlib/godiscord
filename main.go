@@ -21,11 +21,13 @@ func main() {
 		enums.GatewayIntent.MessageContent,
 	)
 
-	fmt.Println(err)
+	Client.On("GUILD_CREATE", func(args ...any) {
+		fmt.Println(args[0].(classes.Guild).Name)
+	})
 
 	Client.On("READY", func(args ...any) {
 		c := args[0].(classes.Client)
-		fmt.Println(c.Username, "is ready")
+		fmt.Println(c.Username+"#"+c.Discriminator, "is ready")
 		err := c.SetPresence(classes.PresenceUpdate{
 			Activities: []classes.Activity{
 				{
@@ -39,8 +41,8 @@ func main() {
 			fmt.Println(err)
 			return
 		}
-		c.GetWSPing()
 	})
+
 	Client.On("MESSAGE_CREATE", func(args ...any) {
 		// message := args[0].(classes.Message)
 		// if message.Content == "!sf" {

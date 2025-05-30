@@ -10,13 +10,15 @@ import (
 	"os"
 
 	"godiscord.foo.ng/lib/pkg/classes"
+	"godiscord.foo.ng/lib/pkg/enums"
 )
 
 func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommandData, GuildID string) error {
 	for _, cmd := range Commands {
-		if cmd.Name == "" || cmd.Description == "" || cmd.Type == 0 {
+		if cmd.Name == "" || cmd.Description == "" {
 			return errors.New("missing required fields in SlashCommandData")
 		}
+		cmd.Type = enums.ApplicationCommandType.ChatInput
 		reqBody, err := json.Marshal(cmd)
 		if err != nil {
 			return err
@@ -47,9 +49,10 @@ func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommand
 
 func RegisterGlobalCommands(ApplicationID string, Commands []classes.SlashCommandData) error {
 	for _, cmd := range Commands {
-		if cmd.Name == "" || cmd.Description == "" || cmd.Type == 0 {
+		if cmd.Name == "" || cmd.Description == "" {
 			return errors.New("missing required fields in SlashCommandData")
 		}
+		cmd.Type = enums.ApplicationCommandType.ChatInput
 		reqBody, err := json.Marshal(cmd)
 		if err != nil {
 			return err
