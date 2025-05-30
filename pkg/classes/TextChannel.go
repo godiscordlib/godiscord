@@ -16,11 +16,11 @@ import (
 )
 
 type TextChannel struct {
-	BaseChannel
+	Channel
 }
 
 // Reply sends a message in the text channel
-func (t BaseChannel) Reply(data any) (*Message, error) {
+func (t Channel) Reply(data any) (*Message, error) {
 	var req *http.Request
 	var contentType string
 	var body io.Reader
@@ -137,7 +137,7 @@ func (t BaseChannel) Reply(data any) (*Message, error) {
 	return &message, nil
 }
 
-func (t BaseChannel) BulkDelete(Messages any) error {
+func (t Channel) BulkDelete(Messages any) error {
 	if t.Type != enums.ChannelType.TextChannel {
 		return errors.New("error: wrong channel type")
 	}

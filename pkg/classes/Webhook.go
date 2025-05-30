@@ -15,6 +15,6 @@ type Webhook struct {
 	Token         string            `json:"token"`
 	ApplicationID string            `json:"application_id"`
 	SourceGuild   Guild             `json:"source_guild"`
-	SourceChannel BaseChannel       `json:"source_channel"`
+	SourceChannel Channel           `json:"source_channel"`
 	URL           string            `json:"url"`
 }

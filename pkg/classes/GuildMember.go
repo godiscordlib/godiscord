@@ -1,6 +1,8 @@
 package classes
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -24,6 +26,7 @@ type GuildMember struct {
 	Permissions   string   `json:"permissions"`                  // TODO: check if it's possible to juste replace with Permissions from the internal/enums.
 	TimedoutUntil string   `json:"communication_disabled_until"` // ISO8601 timestamp
 	RoleManager   guildMemberRoleManager
+	Guild         *Guild
 	// TODO:
 	// Add GuildMemberFlags
 	// Add AvatarDecoration (low priority)
@@ -60,17 +63,39 @@ func (rm guildMemberRoleManager) Add(RoleID string, Reason ...string) error {
 }
 
 type EditGuildMemberOptions struct {
-	Nickname        string   `json:"nick"`
-	Roles           []string `json:"roles"`
-	Muted           bool     `json:"muted"`
-	Deafened        bool     `json:"deafened"`
-	MoveToChannelID string   `json:"channel_id"`
-	TimeoutUntil    string   `json:"communication_disabled_until"` // ISO8601 timestamp
-	Flags           int      `json:"flags"`
+	Nickname        string `json:"nick,omitempty"`
+	Muted           bool   `json:"muted"`
+	Deafened        bool   `json:"deafened"`
+	MoveToChannelID string `json:"channel_id,omitempty"`
+	TimeoutUntil    string `json:"communication_disabled_until"` // ISO8601 timestamp
+	Flags           int    `json:"flags,omitempty"`
+	Reason          string
 }
 
-func (gm GuildMember) Edit(Options EditGuildMemberOptions) {
-
+func (gm GuildMember) Edit(Options EditGuildMemberOptions) (*GuildMember, error) {
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", Options.Reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if res.StatusCode != 200 {
+		return nil, errors.New(string(res_body))
+	}
+	var guildmember GuildMember
+	if err = json.Unmarshal(res_body, &guildmember); err != nil {
+		return nil, err
+	}
+	return &guildmember, nil
 }
 
 func (gm GuildMember) Kick(Reason ...string) error {

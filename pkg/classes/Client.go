@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	types2 "godiscord.foo.ng/lib/pkg/types"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 const API_VERSION = "10"
@@ -18,7 +18,7 @@ const API_URL = "https://discord.com/api/v" + API_VERSION
 type Client struct {
 	*User
 	*EventManager
-	Intents   []types2.GatewayIntent
+	Intents   []types.GatewayIntent
 	WS        *WebSocket
 	wschannel chan webSocketPayload
 	readyChan chan struct{}
@@ -38,7 +38,7 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func NewClient(Token string, Intents ...types2.GatewayIntent) Client {
+func NewClient(Token string, Intents ...types.GatewayIntent) Client {
 	os.Setenv("GODISCORD_TOKEN", Token)
 	return Client{
 		EventManager: NewEventManager(),
@@ -114,11 +114,11 @@ func (c Client) Connect() error {
 					message.Channel.Guild.Roles = RoleManager{
 						GuildID: message.Channel.GuildID,
 					}
-					c.Emit("MESSAGE_CREATE", message)
+					c.Emit("MESSAGE_CREATE", message, c)
 				case "INTERACTION_CREATE":
 					var interaction BaseInteraction
 					json.Unmarshal(payload.Data, &interaction)
-					c.Emit("INTERACTION_CREATE", interaction)
+					c.Emit("INTERACTION_CREATE", interaction, c)
 				case "MESSAGE_UPDATE":
 					var message Message
 					json.Unmarshal(payload.Data, &message)
@@ -147,7 +147,7 @@ func (c Client) Connect() error {
 					message.Channel.Guild.Roles = RoleManager{
 						GuildID: message.Channel.GuildID,
 					}
-					c.Emit("MESSAGE_UPDATE", message)
+					c.Emit("MESSAGE_UPDATE", message, c)
 				case "MESSAGE_REACTION_ADD":
 					var message Message
 					json.Unmarshal(payload.Data, &message)
@@ -176,7 +176,7 @@ func (c Client) Connect() error {
 					message.Channel.Guild.Roles = RoleManager{
 						GuildID: message.Channel.GuildID,
 					}
-					c.Emit("MESSAGE_REACTION_ADD", message)
+					c.Emit("MESSAGE_REACTION_ADD", message, c)
 				case "GUILD_CREATE":
 					var guild Guild
 					json.Unmarshal(payload.Data, &guild)
@@ -198,7 +198,7 @@ func (c Client) Connect() error {
 					guild.Roles = RoleManager{
 						GuildID: guild.ID,
 					}
-					c.Emit("GUILD_CREATE", guild)
+					c.Emit("GUILD_CREATE", guild, c)
 				case "GUILD_DELETE":
 					var guild Guild
 					json.Unmarshal(payload.Data, &guild)
@@ -216,7 +216,7 @@ func (c Client) Connect() error {
 					guild.Roles = RoleManager{
 						GuildID: guild.ID,
 					}
-					c.Emit("GUILD_DELETE", guild)
+					c.Emit("GUILD_DELETE", guild, c)
 				case "GUILD_UPDATE":
 					var guild Guild
 					json.Unmarshal(payload.Data, &guild)
@@ -237,14 +237,14 @@ func (c Client) Connect() error {
 					guild.Roles = RoleManager{
 						GuildID: guild.ID,
 					}
-					c.Emit("GUILD_UPDATE", guild)
+					c.Emit("GUILD_UPDATE", guild, c)
 				case "GUILD_ROLE_CREATE":
 					var role Role
 					err := json.Unmarshal(payload.Data, &role)
 					if err != nil {
 						continue
 					}
-					c.Emit("GUILD_ROLE_CREATE", role)
+					c.Emit("GUILD_ROLE_CREATE", role, c)
 				case "GUILD_ROLE_DELETE":
 					var role Role
 					err := json.Unmarshal(payload.Data, &role)
@@ -257,16 +257,16 @@ func (c Client) Connect() error {
 					// }
 					// guild.Me = *botMember
 
-					c.Emit("GUILD_ROLE_DELETE", role)
+					c.Emit("GUILD_ROLE_DELETE", role, c)
 				case "GUILD_ROLE_UPDATE":
 					var role Role
 					err := json.Unmarshal(payload.Data, &role)
 					if err != nil {
 						continue
 					}
-					c.Emit("GUILD_ROLE_UPDATE", role)
+					c.Emit("GUILD_ROLE_UPDATE", role, c)
 				case "CHANNEL_CREATE":
-					var channel BaseChannel
+					var channel Channel
 					err := json.Unmarshal(payload.Data, &channel)
 					if err != nil {
 						continue
@@ -280,7 +280,7 @@ func (c Client) Connect() error {
 					channel.Guild.Roles = RoleManager{
 						GuildID: channel.GuildID,
 					}
-					c.Emit("CHANNEL_CREATE", channel)
+					c.Emit("CHANNEL_CREATE", channel, c)
 				default:
 					fmt.Println("Event:", payload.EventName)
 				}
@@ -310,7 +310,7 @@ func (c Client) GetTextChannelByID(ID string) (*TextChannel, error) {
 	defer res.Body.Close()
 	var channel TextChannel
 	json.Unmarshal(body_in_bytes, &channel)
-	if channel.Type != types2.TextChannel {
+	if channel.Type != types.TextChannel {
 		return nil, fmt.Errorf("error: Channel is not a TextChannel")
 	}
 

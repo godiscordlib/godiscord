@@ -2,25 +2,26 @@
 
 ## ADD REASONS TO METHODS THAT CAN HAVE IT
 
-## ✅ Message
+## 🛠 Message
+-   ❌ Components
 
 ## 🛠 Guild
 -   ✅ Create Guild
 -   ✅ Get Guild
 -   ✅ Leave Guild
 -   ❌ Get Guild Preview
--   ❌ Edit Guild
+-   ✅ Edit Guild
 -   ✅ Delete Guild
--   ❌ Get All Guild Channels
+-   ✅ Get All Guild Channels
 -   ✅ Create Channel
--   ❌ Edit Channel Position
+-   ✅ Edit Channel
 -   ❌ Get Active Threads
 -   ✅ Get a GuildMember
 -   ❌ List GuildMembers (only 1k max/request...)
 -   ❌ Search GuildMembers?
 -   ❌ Add GuildMember (with OAuth2, not now)
--   ❌ Edit GuildMember
--   ❌ Edit Bot GuildMember
+-   ✅ Edit GuildMember
+-   ✅ Edit Bot GuildMember
 -   ✅ Get Guild Ban(s)
 -   ✅ Create Ban
 -   ✅ Kick
@@ -28,7 +29,7 @@
 -   ✅ Bulk Ban
 -   ✅ Get Role(s)
 -   ✅ Create Role
--   ❌ Edit Role
+-   ✅ Edit Role
 -   ✅ Delete Role
 -   ✅ Guild Prune things
 -   ❌ Get Voices region (useless...)
@@ -61,8 +62,8 @@
 -   ❌ Monetization
 -   ❌ User Apps
 -   ❌ Polls
--   ❌ Forwarding
+-   ❌ Forwarding?
 -   ❌ App Emoji
 
 # MISC:
-Seperate project into organized folders
+Separate project into organized folders
