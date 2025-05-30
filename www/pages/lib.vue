@@ -13,4 +13,6 @@ useHead({
 });
 </script>
 
-<template></template>
+<template>
+  <h1>Redirecting...</h1>
+</template>
