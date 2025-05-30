@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b27b25cb-2f87-4ca9-94a4-5b0c02ff1529" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/types/ComponentType.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/www/pages/discord.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/BaseInteraction.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/BaseInteraction.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/www/pages/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/www/pages/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/www/pages/lib.vue" beforeDir="false" afterPath="$PROJECT_DIR$/www/pages/lib.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/www/nuxt.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/www/nuxt.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

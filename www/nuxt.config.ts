@@ -12,6 +12,9 @@ export default defineNuxtConfig({
           content: "w6I7NxoiHb1ooEJ-dbj-mrfLbjSdBkcHQuQvtX5XDME",
         }
       ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon' ,href: '/favicon.ico' }
+      ]
     }
   },
   site: {
