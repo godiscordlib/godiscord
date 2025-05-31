@@ -7,6 +7,7 @@ import (
 
 	"godiscord.foo.ng/lib/pkg/classes"
 	"godiscord.foo.ng/lib/pkg/enums"
+	"godiscord.foo.ng/lib/pkg/new"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	Client := classes.NewClient(
+	Client := new.Client(
 		strings.TrimSpace(string(token)),
 		enums.GatewayIntent.Guilds,
 		enums.GatewayIntent.GuildMessages,
@@ -78,7 +79,7 @@ func main() {
 		if commandName == "!gh" || commandName == "!github" {
 			err = message.Reply(classes.MessageData{
 				Components: []classes.ActionRow{
-					classes.NewActionRow().AddComponent(classes.NewRoleSelectMenu().SetCustomID("hello")),
+					new.ActionRow().AddComponent(classes.NewRoleSelectMenu().SetCustomID("hello")),
 				},
 			})
 			fmt.Println(err)
@@ -89,7 +90,7 @@ func main() {
 		if interaction.Type == enums.InteractionResponseType.ApplicationCommand {
 			interaction.Reply(classes.MessageData{
 				Embeds: []classes.Embed{
-					classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
+					new.Embed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
 				},
 			})
 		}

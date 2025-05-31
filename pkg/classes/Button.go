@@ -1,7 +1,6 @@
 package classes
 
 import (
-	"godiscord.foo.ng/lib/pkg/enums"
 	"godiscord.foo.ng/lib/pkg/types"
 )
 
@@ -17,11 +16,6 @@ type Button struct {
 	Disabled bool                `json:"disabled"`
 }
 
-func NewButton() Button {
-	return Button{
-		Type: enums.ComponentType.Button,
-	}
-}
 func (b Button) SetStyle(style types.ButtonType) Button {
 	b.Style = style
 	return b

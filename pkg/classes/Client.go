@@ -38,19 +38,11 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func NewClient(Token string, Intents ...types.GatewayIntent) Client {
-	os.Setenv("GODISCORD_TOKEN", Token)
-	return Client{
-		EventManager: NewEventManager(),
-		Intents:      Intents,
-		WS:           newWebSocket(),
-		wschannel:    make(chan webSocketPayload),
-		readyChan:    make(chan struct{}),
-		done:         make(chan struct{}),
-	}
-}
-
 func (c Client) Connect() error {
+	c.WS = newWebSocket()
+	c.done = make(chan struct{})
+	c.readyChan = make(chan struct{})
+	c.wschannel = make(chan webSocketPayload)
 	go func() {
 		c.WS.Connect(os.Getenv("GODISCORD_TOKEN"), c.Intents, c.wschannel)
 		close(c.wschannel)

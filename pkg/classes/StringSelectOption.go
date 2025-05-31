@@ -8,10 +8,6 @@ type StringSelectOption struct {
 	Default     *bool   `json:"default,omitempty"`
 }
 
-func NewStringSelectOption() StringSelectOption {
-	return StringSelectOption{}
-}
-
 func (sso StringSelectOption) SetLabel(label string) StringSelectOption {
 	sso.Label = label
 	return sso

@@ -34,10 +34,6 @@ type field struct {
 	Inline bool   `json:"inline"`
 }
 
-func NewEmbed() Embed {
-	return Embed{Color: 2895667}
-}
-
 func (e Embed) SetTitle(Title string) Embed {
 	e.Title = Title
 	return e
