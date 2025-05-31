@@ -19,5 +19,5 @@ type baseInteractionData struct {
 }
 
 type BaseComponent interface {
-	GetType() types.InteractionType
+	GetType() types.ComponentType
 }

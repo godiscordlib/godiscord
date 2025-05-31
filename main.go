@@ -76,17 +76,23 @@ func main() {
 			message.Reply(fmt.Sprintf("Pong!\n%dms", Client.WS.Ping))
 		}
 		if commandName == "!gh" || commandName == "!github" {
-			message.Reply("https://github.com/AYn0nyme/godiscord")
+			err = message.Reply(classes.MessageData{
+				Components: []classes.ActionRow{
+					classes.NewActionRow().AddComponent(classes.NewRoleSelectMenu().SetCustomID("hello")),
+				},
+			})
+			fmt.Println(err)
 		}
 	})
 	Client.On("INTERACTION_CREATE", func(args ...any) {
 		interaction := args[0].(classes.BaseInteraction)
-
-		interaction.Reply(classes.MessageData{
-			Embeds: []classes.Embed{
-				classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
-			},
-		})
+		if interaction.Type == enums.InteractionResponseType.ApplicationCommand {
+			interaction.Reply(classes.MessageData{
+				Embeds: []classes.Embed{
+					classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
+				},
+			})
+		}
 	})
 	err = Client.Connect()
 

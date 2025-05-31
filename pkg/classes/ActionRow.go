@@ -1,19 +1,24 @@
 package classes
 
+import (
+	"godiscord.foo.ng/lib/pkg/enums"
+	"godiscord.foo.ng/lib/pkg/types"
+)
+
 type ActionRow struct {
-	Type       int             `json:"type"`
-	ID         string          `json:"id"`
-	Components []BaseComponent `json:"components"`
+	Type       types.ComponentType `json:"type"`
+	ID         int32               `json:"id,omitempty"`
+	Components []BaseComponent     `json:"components"`
 }
 
 func NewActionRow() ActionRow {
 	return ActionRow{
-		Type:       1,
-		Components: make([]BaseComponent, 1, 5),
+		Type:       enums.ComponentType.ActionRow,
+		Components: make([]BaseComponent, 0, 5),
 	}
 }
 
-func (ar ActionRow) SetID(ID string) ActionRow {
+func (ar ActionRow) SetID(ID int32) ActionRow {
 	ar.ID = ID
 	return ar
 }

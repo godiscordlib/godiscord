@@ -138,7 +138,7 @@ func (t Channel) Reply(data any) (*Message, error) {
 }
 
 func (t Channel) BulkDelete(Messages any) error {
-	if t.Type != enums.ChannelType.TextChannel {
+	if t.Type != enums.ChannelType.GuildText {
 		return errors.New("error: wrong channel type")
 	}
 	switch messages_for_req := Messages.(type) {

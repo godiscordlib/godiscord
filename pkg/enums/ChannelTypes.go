@@ -5,9 +5,9 @@ import (
 )
 
 var ChannelType = struct {
-	TextChannel             types.ChannelType
+	GuildText               types.ChannelType
 	DMChannel               types.ChannelType
-	VoiceChannel            types.ChannelType
+	GuildVoice              types.ChannelType
 	DMGroup                 types.ChannelType
 	Category                types.ChannelType
 	GuildAnnouncement       types.ChannelType
@@ -19,17 +19,17 @@ var ChannelType = struct {
 	Forum                   types.ChannelType
 	GuildMedia              types.ChannelType
 }{
-	TextChannel:             types.TextChannel,
-	DMChannel:               types.DMChannel,
-	VoiceChannel:            types.VoiceChannel,
-	DMGroup:                 types.DMGroup,
-	Category:                types.Category,
-	GuildAnnouncement:       types.GuildAnnouncement,
-	GuildAnnouncementThread: types.GuildAnnouncementThread,
-	PublicThread:            types.PublicThread,
-	PrivateThread:           types.PrivateThread,
-	StageVoice:              types.StageVoice,
-	GuildHubDirectory:       types.GuildHubDirectory,
-	Forum:                   types.Forum,
-	GuildMedia:              types.GuildMedia,
+	types.TextChannel,
+	types.DMChannel,
+	types.VoiceChannel,
+	types.DMGroup,
+	types.Category,
+	types.GuildAnnouncement,
+	types.GuildAnnouncementThread,
+	types.PublicThread,
+	types.PrivateThread,
+	types.StageVoice,
+	types.GuildHubDirectory,
+	types.Forum,
+	types.GuildMedia,
 }

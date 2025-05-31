@@ -14,6 +14,7 @@ import (
 	"strings"
 	"unicode"
 
+	"godiscord.foo.ng/lib/pkg/enums"
 	"godiscord.foo.ng/lib/pkg/types"
 )
 
@@ -166,7 +167,10 @@ func (m Message) Reply(data any) error {
 
 			var flags int
 			for _, flag := range v.Flags {
-				flags += int(flag)
+				flags |= int(flag)
+			}
+			if len(v.Components) > 0 {
+				flags |= int(enums.MessageFlags.IsComponentsV2)
 			}
 
 			msg := payloadMessage{
@@ -185,6 +189,7 @@ func (m Message) Reply(data any) error {
 				pw.CloseWithError(err)
 				return
 			}
+			fmt.Println(string(jsonData))
 			writer.WriteField("payload_json", string(jsonData))
 		}()
 
