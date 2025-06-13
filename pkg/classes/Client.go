@@ -19,7 +19,7 @@ type Client struct {
 	*User
 	*EventManager
 	Intents   []types.GatewayIntent
-	WS        *WebSocket
+	ws        *WebSocket
 	wschannel chan webSocketPayload
 	readyChan chan struct{}
 	done      chan struct{}
@@ -38,13 +38,13 @@ type PresenceUpdate struct {
 	AFK        bool       `json:"afk"`
 }
 
-func (c Client) Connect() error {
-	c.WS = newWebSocket()
+func (c *Client) Connect() error {
+	c.ws = newWebSocket()
 	c.done = make(chan struct{})
 	c.readyChan = make(chan struct{})
 	c.wschannel = make(chan webSocketPayload)
 	go func() {
-		c.WS.Connect(os.Getenv("GODISCORD_TOKEN"), c.Intents, c.wschannel)
+		c.ws.Connect(os.Getenv("GODISCORD_TOKEN"), c.Intents, c.wschannel)
 		close(c.wschannel)
 	}()
 	go func() {
@@ -396,14 +396,14 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 	}
 
 	for i := range Options.Activities {
-		if !(Options.Activities[i].CreatedAt > 0) {
+		if Options.Activities[i].CreatedAt <= 0 {
 			Options.Activities[i].CreatedAt = time.Now().Unix() // <-- millisecondes ici !
 		}
 	}
-	if !(Options.Since > 0) {
+	if Options.Since <= 0 {
 		Options.Since = time.Now().Unix()
 	}
-	err := c.WS.SendEvent(3, Options)
+	err := c.ws.SendEvent(3, Options)
 	if err != nil {
 		fmt.Println("Erreur SendEvent:", err)
 	}
@@ -411,7 +411,7 @@ func (c Client) SetPresence(Options PresenceUpdate) error {
 }
 
 func (c Client) GetWSPing() int {
-	return int(c.WS.Ping)
+	return int(c.ws.Ping)
 }
 
 // func (c Client) Edit()

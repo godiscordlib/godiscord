@@ -8,6 +8,7 @@ import (
 	"godiscord.foo.ng/lib/pkg/classes"
 	"godiscord.foo.ng/lib/pkg/enums"
 	"godiscord.foo.ng/lib/pkg/new"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 	})
 
 	Client.On("READY", func(args ...any) {
-		c := args[0].(classes.Client)
+		c := args[0].(*classes.Client)
 		fmt.Println(c.Username+"#"+c.Discriminator, "is ready")
 		err := c.SetPresence(classes.PresenceUpdate{
 			Activities: []classes.Activity{
@@ -45,25 +46,6 @@ func main() {
 	})
 
 	Client.On("MESSAGE_CREATE", func(args ...any) {
-		// message := args[0].(classes.Message)
-		// if message.Content == "!sf" {
-		// 	now := time.Now()
-		// 	message.Reply(classes.MessageData{
-		// 		Content: "Hello",
-		// 		Attachments: []classes.Attachment{
-		// 			{
-		// 				FileName:    "godiscord.webp",
-		// 				FilePath:    "./www/public/godiscord.webp",
-		// 				Description: "Hello",
-		// 			},
-		// 		},
-		// 		Embeds: []classes.Embed{
-		// 			classes.NewEmbed().SetThumbnail("attachment://godiscord.webp", 64, 64),
-		// 		},
-		// 	})
-		// 	timeItTook := time.Since(now).Milliseconds()
-		// 	message.Reply(strconv.Itoa(int(timeItTook)))
-		// }
 		message := args[0].(classes.Message)
 		if len(strings.Fields(message.Content)) <= 0 {
 			return
@@ -74,12 +56,12 @@ func main() {
 			//message_args = strings.Fields(message.Content)[1:]
 		}
 		if commandName == "!ping" {
-			message.Reply(fmt.Sprintf("Pong!\n%dms", Client.WS.Ping))
+			message.Reply(fmt.Sprintf("Pong!\n%dms", Client.GetWSPing()))
 		}
 		if commandName == "!gh" || commandName == "!github" {
 			err = message.Reply(classes.MessageData{
 				Components: []classes.ActionRow{
-					new.ActionRow().AddComponent(classes.NewRoleSelectMenu().SetCustomID("hello")),
+					new.ActionRow().AddComponent(new.RoleSelectMenu().SetCustomID("hello")),
 				},
 			})
 			fmt.Println(err)
@@ -88,11 +70,30 @@ func main() {
 	Client.On("INTERACTION_CREATE", func(args ...any) {
 		interaction := args[0].(classes.BaseInteraction)
 		if interaction.Type == enums.InteractionResponseType.ApplicationCommand {
-			interaction.Reply(classes.MessageData{
+			if interaction.Data.Name == "ping" {
+				interaction.Reply(classes.MessageData{
+					Embeds: []classes.Embed{
+						new.Embed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
+					},
+					Components: []classes.ActionRow{
+						new.ActionRow().AddComponent(new.Button().SetCustomID("rori").SetLabel("Clik").SetStyle(enums.ButtonType.Success)),
+					},
+				})
+			} else {
+				interaction.Reply(classes.MessageData{
+					Content: ":x: Unknown command.",
+					Flags:   []types.MessageFlag{enums.MessageFlags.Ephemeral},
+				})
+			}
+		}
+		if interaction.Type == enums.InteractionResponseType.MessageComponent {
+			fmt.Println(interaction)
+			_, err = interaction.Reply(classes.MessageData{
 				Embeds: []classes.Embed{
-					new.Embed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
+					new.Embed().SetDescription("I am here").SetColor("00ADD8"),
 				},
 			})
+			fmt.Println(err)
 		}
 	})
 	err = Client.Connect()

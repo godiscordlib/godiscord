@@ -49,7 +49,7 @@ func main() {
 	}, "1373794354677813290")
 
 	Client.On("READY", func(args ...any) {
-		fmt.Println("READY:", args[0].(classes.Client).User.Username)
+		fmt.Println("READY:", args[0].(*classes.Client).User.Username)
 		Client.SetPresence(classes.PresenceUpdate{
 			Activities: []classes.Activity{
 				classes.Activity{
@@ -89,6 +89,7 @@ func main() {
 ## 🧑‍💻 Contribute
 
 - First `git clone https://github.com/AYn0nyme/godiscord`
+- Then `go mod tidy`
 - And you're good to **Go** 😄
 
 ## 📜 License

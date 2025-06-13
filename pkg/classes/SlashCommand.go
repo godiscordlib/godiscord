@@ -29,7 +29,7 @@ type interactionPayloadMessageData struct {
 }
 
 func (bi BaseInteraction) Reply(data any) (*Message, error) {
-	if bi.Type != enums.InteractionResponseType.ApplicationCommand {
+	if bi.Type != enums.InteractionResponseType.ApplicationCommand && bi.Type != enums.InteractionResponseType.MessageComponent {
 		return nil, nil
 	}
 	var req *http.Request
@@ -142,14 +142,23 @@ func (bi BaseInteraction) Reply(data any) (*Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
 	resp, _ := io.ReadAll(res.Body)
+	if res.StatusCode == 204 {
+		return nil, nil
+	}
+
 	if res.StatusCode >= 300 {
 		return nil, fmt.Errorf("failed to reply: %d - %s", res.StatusCode, string(resp))
 	}
+
+	if len(resp) == 0 {
+		return nil, nil
+	}
+
 	if err = json.Unmarshal(resp, &message); err != nil {
 		return nil, err
 	}
+
 	return &message, nil
 }
