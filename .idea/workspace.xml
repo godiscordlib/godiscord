@@ -5,20 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b27b25cb-2f87-4ca9-94a4-5b0c02ff1529" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/pkg/new/ActionRow.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/new/Button.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/new/Client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/new/Embed.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/new/StringSelectMenu.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/new/StringSelectOption.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/git.sh" beforeDir="false" afterPath="$PROJECT_DIR$/git.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/ActionRow.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/ActionRow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/Button.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/Button.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/classes/Client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/Client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/Embed.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/Embed.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/StringSelectMenu.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/StringSelectMenu.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/classes/StringSelectOption.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/StringSelectOption.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/classes/SlashCommand.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/classes/SlashCommand.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,36 +49,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "Go Build.go build godiscord.foo.ng/lib.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.GoLinterPluginOnboarding": "true",
-    "RunOnceActivity.GoLinterPluginStorageMigration": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "main",
-    "go.import.settings.migrated": "true",
-    "go.sdk.automatically.set": "true",
-    "last_opened_file_path": "/home/aynonyme/Documents/godiscord/pkg/classes",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "pnpm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/aynonyme/Téléchargements/GoLand/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Go Build.go build godiscord.foo.ng/lib.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginOnboarding&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.GoLinterPluginStorageMigration&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/aynonyme/Documents/japago&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/aynonyme/Téléchargements/GoLand/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "vue.recent.templates": [
-      "Vue Options API Component"
+  &quot;keyToStringList&quot;: {
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Options API Component&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/pkg/classes" />
