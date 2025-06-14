@@ -3,7 +3,7 @@
         <div class="flex flex-col items-center">
             <NuxtImg src="/godiscord.webp" width="144" height="144" class="transition-all hover:drop-shadow-lg hover:drop-shadow-[#00ADD8] mb-4" />
             <h2 class="text-3xl font-semibold">godiscord – Simple. Powerful. <span class="text-[#00ADD8]">Go</span>.</h2>
-            <p class=" mt-2">godiscord is a simple and performant Discord library to make Discord bots.</p>
+            <p class="mt-2">godiscord is a simple and performant Discord library to make Discord bots.</p>
 
 
         </div>

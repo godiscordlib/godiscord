@@ -20,6 +20,8 @@
     "@nuxtjs/tailwindcss": "7.0.0-beta.0",
     "@tailwindcss/vite": "^4.1.7",
     "@unhead/vue": "^2.0.3",
+    "@vueuse/components": "^13.3.0",
+    "@vueuse/nuxt": "13.3.0",
     "eslint": "^9.0.0",
     "nuxt": "^3.17.4",
     "tailwindcss": "^4.1.7",

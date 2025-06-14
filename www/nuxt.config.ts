@@ -32,5 +32,6 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/scripts',
     '@nuxtjs/seo',
+    '@vueuse/nuxt',
   ],
 })
