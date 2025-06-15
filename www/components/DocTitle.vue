@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { UseClipboard } from "@vueuse/components";
 const slotContainer = ref<HTMLDivElement | null>(null);
+const par = ref<HTMLDivElement | null>(null);
 const source = ref("");
 onMounted(() => {
     if (slotContainer.value) {
         const text = slotContainer.value.innerText;
+        if (par.value) {
+            par.value.id = text;
+        }
         const cleanUrl = window.location.href.split("#")[0];
         console.log(cleanUrl, window.location.href);
         source.value = cleanUrl + "#" + slotContainer.value.innerText;
@@ -13,7 +17,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div :id="text" class="flex items-center gap-1">
+    <div ref="par" class="flex items-center gap-1">
         <UseClipboard v-slot="{ copy, copied }">
             <Icon
                 name="dashicons:admin-links"
