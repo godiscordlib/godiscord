@@ -4,6 +4,7 @@ const slotContainer = ref<HTMLDivElement | null>(null);
 const source = ref("");
 onMounted(() => {
     if (slotContainer.value) {
+        const text = slotContainer.value.innerText;
         const cleanUrl = window.location.href.split("#")[0];
         console.log(cleanUrl, window.location.href);
         source.value = cleanUrl + "#" + slotContainer.value.innerText;
@@ -12,7 +13,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div :id="slotContainer.value.innerText" class="flex items-center gap-1">
+    <div :id="text" class="flex items-center gap-1">
         <UseClipboard v-slot="{ copy, copied }">
             <Icon
                 name="dashicons:admin-links"
