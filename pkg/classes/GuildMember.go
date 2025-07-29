@@ -25,6 +25,7 @@ type GuildMember struct {
 	StillJoining  bool     `json:"pending"`                      // If the user is still on the Membership screening
 	Permissions   string   `json:"permissions"`                  // TODO: check if it's possible to juste replace with Permissions from the internal/enums.
 	TimedoutUntil string   `json:"communication_disabled_until"` // ISO8601 timestamp
+	GuildID       string   `json:"guild_id"`
 	RoleManager   guildMemberRoleManager
 	Guild         *Guild
 	// TODO:
