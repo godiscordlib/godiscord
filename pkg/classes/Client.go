@@ -280,6 +280,8 @@ func (c *Client) Connect() error {
 					if err := json.Unmarshal(payload.Data, &guildMember); err != nil {
 						continue
 					}
+					guildMember.RoleManager.GuildID = guildMember.Guild.ID
+					guildMember.RoleManager.MemberID = guildMember.User.ID
 					c.Emit("GUILD_MEMBER_ADD", guildMember, c)
 				default:
 					fmt.Println("Event:", payload.EventName)
