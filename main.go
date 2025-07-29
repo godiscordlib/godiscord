@@ -9,6 +9,7 @@ import (
 	"godiscord.foo.ng/lib/pkg/enums"
 	"godiscord.foo.ng/lib/pkg/new"
 	"godiscord.foo.ng/lib/pkg/types"
+	"godiscord.foo.ng/lib/pkg/utils"
 )
 
 func main() {
@@ -70,7 +71,7 @@ func main() {
 	Client.On("INTERACTION_CREATE", func(args ...any) {
 		interaction := args[0].(classes.BaseInteraction)
 		if interaction.Type == enums.InteractionResponseType.ApplicationCommand {
-			if interaction.Data.Name == "ping" {
+			if interaction.GetName() == "ping" {
 				interaction.Reply(classes.MessageData{
 					Embeds: []classes.Embed{
 						new.Embed().SetDescription(fmt.Sprintf("🏓 %dms", Client.GetWSPing())).SetColor("00ADD8"),
@@ -87,13 +88,11 @@ func main() {
 			}
 		}
 		if interaction.Type == enums.InteractionResponseType.MessageComponent {
-			fmt.Println(interaction)
-			_, err = interaction.Reply(classes.MessageData{
+			interaction.Reply(classes.MessageData{
 				Embeds: []classes.Embed{
-					new.Embed().SetDescription("I am here").SetColor("00ADD8"),
+					new.Embed().SetDescription(utils.RoleString(interaction.Values()[0])).SetColor("00ADD8"),
 				},
 			})
-			fmt.Println(err)
 		}
 	})
 	err = Client.Connect()

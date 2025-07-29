@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"godiscord.foo.ng/lib/pkg/enums"
 	"godiscord.foo.ng/lib/pkg/types"
 )
 
@@ -110,6 +111,7 @@ func (c *Client) Connect() error {
 				case "INTERACTION_CREATE":
 					var interaction BaseInteraction
 					json.Unmarshal(payload.Data, &interaction)
+					fmt.Println(interaction.Type, enums.InteractionType.Message)
 					c.Emit("INTERACTION_CREATE", interaction, c)
 				case "MESSAGE_UPDATE":
 					var message Message

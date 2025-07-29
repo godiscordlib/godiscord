@@ -1,7 +1,8 @@
 package classes
 
 import (
-	types "godiscord.foo.ng/lib/pkg/types"
+	"godiscord.foo.ng/lib/pkg/enums"
+	"godiscord.foo.ng/lib/pkg/types"
 )
 
 type BaseInteraction struct {
@@ -13,11 +14,39 @@ type BaseInteraction struct {
 	Data   baseInteractionData           `json:"data"`
 }
 type baseInteractionData struct {
-	Type types.InteractionType `json:"type"`
-	Name string                `json:"name"`
-	ID   string                `json:"id"`
+	Type          types.InteractionType `json:"type"`
+	Name          *string               `json:"name"`
+	ID            *string               `json:"id"`
+	CustomID      *string               `json:"custom_id"`
+	Values        *[]string             `json:"values"`
+	Resolved      *resolvedData         `json:"resolved"`
+	ComponentType *types.ComponentType  `json:"component_type"`
 }
 
 type BaseComponent interface {
 	GetType() types.ComponentType
+}
+
+func (bi BaseInteraction) GetName() string {
+	if bi.Type != enums.InteractionResponseType.ApplicationCommand {
+		return ""
+	}
+
+	return *bi.Data.Name
+}
+
+func (bi BaseInteraction) Values() []string {
+	if bi.Type != enums.InteractionResponseType.MessageComponent {
+		return []string{}
+	}
+
+	return *bi.Data.Values
+}
+
+func (bi BaseInteraction) Resolved() resolvedData {
+	if bi.Type != enums.InteractionResponseType.MessageComponent {
+		return *new(resolvedData)
+	}
+
+	return *bi.Data.Resolved
 }
