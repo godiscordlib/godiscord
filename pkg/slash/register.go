@@ -8,10 +8,20 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/godiscordlib/godiscord/pkg/classes"
 	"github.com/godiscordlib/godiscord/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
+
+type slashCommandData struct {
+	ID                        string                       `json:"id,omitempty"`
+	Name                      string                       `json:"name"`
+	Description               string                       `json:"description"`
+	Type                      types.ApplicationCommandType `json:"type"`
+	DefaultMembersPermissions string                       `json:"default_members_permission,omitempty"`
+}
 
 func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommandData, GuildID string) error {
 	for _, cmd := range Commands {
@@ -19,7 +29,16 @@ func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommand
 			return errors.New("missing required fields in SlashCommandData")
 		}
 		cmd.Type = enums.ApplicationCommandType.ChatInput
-		reqBody, err := json.Marshal(cmd)
+		var reqData slashCommandData
+		reqData.Name = cmd.Name
+		reqData.Description = cmd.Description
+		reqData.Type = cmd.Type
+		var perms int
+		for _, perm := range cmd.DefaultMembersPermissions {
+			perms += int(perm)
+		}
+		reqData.DefaultMembersPermissions = strconv.Itoa(perms)
+		reqBody, err := json.Marshal(reqData)
 		if err != nil {
 			return err
 		}
@@ -53,7 +72,16 @@ func RegisterGlobalCommands(ApplicationID string, Commands []classes.SlashComman
 			return errors.New("missing required fields in SlashCommandData")
 		}
 		cmd.Type = enums.ApplicationCommandType.ChatInput
-		reqBody, err := json.Marshal(cmd)
+		var reqData slashCommandData
+		reqData.Name = cmd.Name
+		reqData.Description = cmd.Description
+		reqData.Type = cmd.Type
+		var perms int
+		for _, perm := range cmd.DefaultMembersPermissions {
+			perms += int(perm)
+		}
+		reqData.DefaultMembersPermissions = strconv.Itoa(perms)
+		reqBody, err := json.Marshal(reqData)
 		if err != nil {
 			return err
 		}
