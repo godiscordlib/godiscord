@@ -275,12 +275,12 @@ func (c *Client) Connect() error {
 						GuildID: channel.GuildID,
 					}
 					c.Emit("CHANNEL_CREATE", channel, c)
-				case "GUILD_MEMBER_CREATE":
+				case "GUILD_MEMBER_ADD":
 					var guildMember GuildMember
 					if err := json.Unmarshal(payload.Data, &guildMember); err != nil {
 						continue
 					}
-					c.Emit("GUILD_MEMBER_CREATE", guildMember, c)
+					c.Emit("GUILD_MEMBER_ADD", guildMember, c)
 				default:
 					fmt.Println("Event:", payload.EventName)
 				}
