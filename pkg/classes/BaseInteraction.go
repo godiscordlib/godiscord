@@ -1,8 +1,8 @@
 package classes
 
 import (
-	"godiscord.foo.ng/lib/pkg/enums"
-	"godiscord.foo.ng/lib/pkg/types"
+	"github.com/godiscordlib/godiscord/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
 type BaseInteraction struct {

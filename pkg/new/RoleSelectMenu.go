@@ -1,8 +1,8 @@
 package new
 
 import (
-	"godiscord.foo.ng/lib/pkg/classes"
-	"godiscord.foo.ng/lib/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/classes"
+	"github.com/godiscordlib/godiscord/pkg/enums"
 )
 
 func RoleSelectMenu() classes.RoleSelectMenu {

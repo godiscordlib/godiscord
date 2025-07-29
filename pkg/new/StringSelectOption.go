@@ -1,6 +1,6 @@
 package new
 
-import "godiscord.foo.ng/lib/pkg/classes"
+import "github.com/godiscordlib/godiscord/pkg/classes"
 
 func StringSelectOption() classes.StringSelectOption {
 	return classes.StringSelectOption{}

@@ -10,7 +10,7 @@
 ## 📦 Installation
 
 ```bash
-go get godiscord.foo.ng/lib/
+go get github.com/godiscordlib/godiscord/
 ```
 
 ## 🧑‍💻 Example usage
@@ -25,9 +25,9 @@ import (
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
-	"godiscord.foo.ng/lib/pkg/classes"
-	"godiscord.foo.ng/lib/pkg/enums"
-	"godiscord.foo.ng/lib/pkg/slash"
+	"github.com/godiscordlib/godiscord/pkg/classes"
+	"github.com/godiscordlib/godiscord/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/slash"
 )
 
 func main() {

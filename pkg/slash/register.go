@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	"godiscord.foo.ng/lib/pkg/classes"
-	"godiscord.foo.ng/lib/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/classes"
+	"github.com/godiscordlib/godiscord/pkg/enums"
 )
 
 func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommandData, GuildID string) error {

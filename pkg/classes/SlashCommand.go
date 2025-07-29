@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"godiscord.foo.ng/lib/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/enums"
 )
 
 type interactionPayloadMessage struct {

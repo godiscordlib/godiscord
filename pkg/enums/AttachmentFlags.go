@@ -1,7 +1,7 @@
 package enums
 
 import (
-	"godiscord.foo.ng/lib/pkg/types"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
 var AttachmentFlag = struct {

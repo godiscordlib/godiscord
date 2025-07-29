@@ -1,6 +1,6 @@
 package enums
 
-import "godiscord.foo.ng/lib/pkg/types"
+import "github.com/godiscordlib/godiscord/pkg/types"
 
 var ComponentType = struct {
 	ActionRow         types.ComponentType

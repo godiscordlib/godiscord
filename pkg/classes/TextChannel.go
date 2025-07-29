@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"godiscord.foo.ng/lib/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/enums"
 )
 
 type TextChannel struct {

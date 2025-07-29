@@ -1,6 +1,6 @@
 package classes
 
-import "godiscord.foo.ng/lib/pkg/types"
+import "github.com/godiscordlib/godiscord/pkg/types"
 
 type BaseSelectMenu struct {
 	Type        types.ComponentType `json:"type"`

@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"godiscord.foo.ng/lib/pkg/classes"
-	"godiscord.foo.ng/lib/pkg/enums"
-	"godiscord.foo.ng/lib/pkg/new"
-	"godiscord.foo.ng/lib/pkg/types"
-	"godiscord.foo.ng/lib/pkg/utils"
+	"github.com/godiscordlib/godiscord/pkg/classes"
+	"github.com/godiscordlib/godiscord/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/new"
+	"github.com/godiscordlib/godiscord/pkg/types"
+	"github.com/godiscordlib/godiscord/pkg/utils"
 )
 
 func main() {

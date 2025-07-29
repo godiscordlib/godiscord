@@ -1,7 +1,7 @@
 package classes
 
 import (
-	"godiscord.foo.ng/lib/pkg/types"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
 type Role struct {

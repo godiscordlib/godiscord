@@ -3,8 +3,8 @@ package new
 import (
 	"os"
 
-	"godiscord.foo.ng/lib/pkg/classes"
-	"godiscord.foo.ng/lib/pkg/types"
+	"github.com/godiscordlib/godiscord/pkg/classes"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
 func Client(Token string, Intents ...types.GatewayIntent) classes.Client {

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"os"
 
-	"godiscord.foo.ng/lib/internal/utils"
+	"github.com/godiscordlib/godiscord/internal/utils"
 )
 
 type GuildMember struct {
