@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
@@ -111,7 +110,12 @@ func (c *Client) Connect() error {
 				case "INTERACTION_CREATE":
 					var interaction BaseInteraction
 					json.Unmarshal(payload.Data, &interaction)
-					fmt.Println(interaction.Type, enums.InteractionType.Message)
+					channelPtr, err := c.GetChannelByID(interaction.ChannelID)
+					if err != nil || channelPtr == nil {
+						channelPtr = nil
+					}
+					channel := channelPtr.(TextChannel)
+					interaction.Channel = channel
 					c.Emit("INTERACTION_CREATE", interaction, c)
 				case "MESSAGE_UPDATE":
 					var message Message
@@ -326,6 +330,36 @@ func (c Client) GetTextChannelByID(ID string) (*TextChannel, error) {
 	channel.Guild = *guild
 
 	return &channel, nil
+}
+
+func (c Client) GetChannelByID(ID string) (ChannelInt, error) {
+	request, err := http.NewRequest("GET", fmt.Sprintf("%s/channels/%s", API_URL, ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	res, err := http.DefaultClient.Do(request)
+	if err != nil || res.StatusCode != 200 {
+		return nil, err
+	}
+	body_in_bytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	var channel TextChannel
+	json.Unmarshal(body_in_bytes, &channel)
+	if channel.Type != types.TextChannel {
+		return nil, fmt.Errorf("error: Channel is not a TextChannel")
+	}
+
+	guild, err := c.GetGuildByID(channel.GuildID)
+	if err != nil {
+		return nil, err
+	}
+	channel.Guild = *guild
+
+	return channel, nil
 }
 
 func (c Client) GetGuildByID(ID string) (*Guild, error) {
