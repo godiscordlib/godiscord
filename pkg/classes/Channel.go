@@ -26,9 +26,6 @@ type Channel struct {
 	CategoryID           string
 	Guild                Guild
 }
-type ChannelInt interface {
-	GetCType() types.ChannelType
-}
 
 type CreateChannelOptions struct {
 	Name                 string                      `json:"name"`

@@ -6,27 +6,21 @@ import (
 )
 
 type BaseInteraction struct {
-	Type      types.InteractionResponseType `json:"type"`
-	Token     string                        `json:"token"`
-	Member    GuildMember                   `json:"member"`
-	ID        string                        `json:"id"`
-	Guild     Guild                         `json:"guild"`
-	Data      baseInteractionData           `json:"data"`
-	ChannelID string                        `json:"channel_id"`
-	Channel   ChannelInt
+	Type   types.InteractionResponseType `json:"type"`
+	Token  string                        `json:"token"`
+	Member GuildMember                   `json:"member"`
+	ID     string                        `json:"id"`
+	Guild  Guild                         `json:"guild"`
+	Data   baseInteractionData           `json:"data"`
 }
-
 type baseInteractionData struct {
-	Type          int                    `json:"type"`
-	Name          *string                `json:"name"`
-	ID            *string                `json:"id"`
-	CustomID      *string                `json:"custom_id"`
-	Values        *[]string              `json:"values"`
-	Resolved      *resolvedData          `json:"resolved"`
-	ComponentType *types.ComponentType   `json:"component_type"`
-	Value         *any                   `json:"value"`
-	Focused       *bool                  `json:"focused"`
-	Options       *[]baseInteractionData `json:"options"`
+	Type          types.InteractionType `json:"type"`
+	Name          *string               `json:"name"`
+	ID            *string               `json:"id"`
+	CustomID      *string               `json:"custom_id"`
+	Values        *[]string             `json:"values"`
+	Resolved      *resolvedData         `json:"resolved"`
+	ComponentType *types.ComponentType  `json:"component_type"`
 }
 
 type BaseComponent interface {
