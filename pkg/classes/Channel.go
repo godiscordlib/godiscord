@@ -94,3 +94,7 @@ func (c Channel) Edit(Options EditChannelOptions) (*Channel, error) {
 	}
 	return &channel, nil
 }
+
+func (c Channel) GetCType() types.ChannelType {
+	return c.Type
+}

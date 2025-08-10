@@ -81,13 +81,15 @@ func (c *Client) Connect() error {
 				case "MESSAGE_CREATE":
 					var message Message
 					json.Unmarshal(payload.Data, &message)
-					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					channel_int, err := c.GetChannelByID(message.ChannelID)
 					if err != nil {
 						continue
 					}
-					if ptr_channel == nil {
-						ptr_channel = &TextChannel{}
+					var ptr_channel *Channel
+					if channel_int == nil {
+						ptr_channel = &Channel{}
 					}
+					ptr_channel = channel_int.(*Channel)
 					message.Channel = *ptr_channel
 					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 					if err != nil {
@@ -120,13 +122,15 @@ func (c *Client) Connect() error {
 				case "MESSAGE_UPDATE":
 					var message Message
 					json.Unmarshal(payload.Data, &message)
-					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					channel_int, err := c.GetChannelByID(message.ChannelID)
 					if err != nil {
 						continue
 					}
+					var ptr_channel *Channel
 					if ptr_channel == nil {
-						ptr_channel = &TextChannel{}
+						ptr_channel = &Channel{}
 					}
+					ptr_channel = channel_int.(*Channel)
 					message.Channel = *ptr_channel
 					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 					if err != nil {
