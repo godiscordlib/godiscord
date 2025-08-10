@@ -8,6 +8,7 @@ import (
 	"github.com/godiscordlib/godiscord/pkg/classes"
 	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/new"
+	"github.com/godiscordlib/godiscord/pkg/slash"
 	"github.com/godiscordlib/godiscord/pkg/types"
 	"github.com/godiscordlib/godiscord/pkg/utils"
 )
@@ -24,6 +25,40 @@ func main() {
 		enums.GatewayIntent.MessageContent,
 	)
 
+	// err = slash.RegisterGuildCommands("1375914465064915144", []classes.SlashCommandData{
+	// 	{
+	// 		Name:                      "say",
+	// 		DefaultMembersPermissions: []types.Permission{enums.Permission.SendMessages},
+	// 		Description:               "repeat what you say",
+	// 		Options: []classes.SlashCommandOptionInt{
+	// 			classes.SlashCommandStringOption{
+	// 				SlashCommandOption: classes.SlashCommandOption{
+	// 					Name:        "msg",
+	// 					Description: "message to send",
+	// 					Type:        enums.SlashCommandOptionType.String,
+	// 					Required:    true,
+	// 				},
+	// 			},
+	// 		},
+	// 	},
+	// }, "1373794354677813290")
+
+	err = slash.RegisterGuildCommands(
+		"1375914465064915144",
+		[]classes.SlashCommandData{
+			new.SlashCommand().
+				SetName("say").
+				SetDefaultMembersPermissions(enums.Permission.SendMessages).
+				SetDescription("repeat what you say").
+				AddOption(
+					new.SlashCommandStringOption().
+						SetName("msg").
+						SetDescription("message to send").
+						SetRequired(true),
+				),
+		},
+		"1373794354677813290",
+	)
 	Client.On("GUILD_CREATE", func(args ...any) {
 		fmt.Println(args[0].(classes.Guild).Name)
 	})
@@ -80,6 +115,21 @@ func main() {
 						new.ActionRow().AddComponent(new.Button().SetCustomID("rori").SetLabel("Clik").SetStyle(enums.ButtonType.Success)),
 					},
 				})
+			} else if interaction.GetName() == "say" {
+				tmp := *interaction.Data.Options
+				if tmp == nil {
+					return
+				}
+				msgPtr, _ := interaction.Reply(classes.MessageData{
+					Content: "Sending message.",
+					Flags:   []types.MessageFlag{enums.MessageFlags.Ephemeral},
+				})
+				interaction.Channel.(classes.TextChannel).Send(*tmp[0].Value)
+				if msgPtr == nil {
+					fmt.Println("u nob")
+				}
+				msg := *msgPtr
+				msg.Edit("Sent message :white_check_mark:")
 			} else {
 				interaction.Reply(classes.MessageData{
 					Content: ":x: Unknown command.",

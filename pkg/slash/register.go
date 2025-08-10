@@ -16,11 +16,12 @@ import (
 )
 
 type slashCommandData struct {
-	ID                        string                       `json:"id,omitempty"`
-	Name                      string                       `json:"name"`
-	Description               string                       `json:"description"`
-	Type                      types.ApplicationCommandType `json:"type"`
-	DefaultMembersPermissions string                       `json:"default_members_permission,omitempty"`
+	ID                        string                          `json:"id,omitempty"`
+	Name                      string                          `json:"name"`
+	Description               string                          `json:"description"`
+	Type                      types.ApplicationCommandType    `json:"type"`
+	DefaultMembersPermissions string                          `json:"default_members_permission,omitempty"`
+	Options                   []classes.SlashCommandOptionInt `json:"options"`
 }
 
 func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommandData, GuildID string) error {
@@ -37,6 +38,7 @@ func RegisterGuildCommands(ApplicationID string, Commands []classes.SlashCommand
 		for _, perm := range cmd.DefaultMembersPermissions {
 			perms += int(perm)
 		}
+		reqData.Options = cmd.Options
 		reqData.DefaultMembersPermissions = strconv.Itoa(perms)
 		reqBody, err := json.Marshal(reqData)
 		if err != nil {

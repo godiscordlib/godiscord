@@ -13,14 +13,15 @@ import (
 	"strings"
 
 	"github.com/godiscordlib/godiscord/pkg/enums"
+	"github.com/godiscordlib/godiscord/pkg/types"
 )
 
 type TextChannel struct {
 	Channel
 }
 
-// Reply sends a message in the text channel
-func (t Channel) Reply(data any) (*Message, error) {
+// Sends a message in the text channel
+func (t TextChannel) Send(data any) (*Message, error) {
 	var req *http.Request
 	var contentType string
 	var body io.Reader
@@ -137,7 +138,7 @@ func (t Channel) Reply(data any) (*Message, error) {
 	return &message, nil
 }
 
-func (t Channel) BulkDelete(Messages any) error {
+func (t TextChannel) BulkDelete(Messages any) error {
 	if t.Type != enums.ChannelType.GuildText {
 		return errors.New("error: wrong channel type")
 	}
@@ -227,4 +228,8 @@ func (t Channel) BulkDelete(Messages any) error {
 		return fmt.Errorf("error: wrong type using bulk delete")
 	}
 	return nil
+}
+
+func (tc TextChannel) GetCType() types.ChannelType {
+	return enums.ChannelType.GuildText
 }
