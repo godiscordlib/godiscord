@@ -85,6 +85,9 @@ func (c Channel) Edit(Options EditChannelOptions) (*Channel, error) {
 		return nil, err
 	}
 	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 	if res.StatusCode != 200 {
 		return nil, errors.New(string(res_body))
 	}

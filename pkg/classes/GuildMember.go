@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/godiscordlib/godiscord/internal/utils"
 )
@@ -21,7 +22,7 @@ type GuildMember struct {
 	JoinedAt      string   `json:"joined_at"`     //	ISO8601 timestamp
 	BoostingSince string   `json:"premium_since"` // ISO8601 timestamp
 	Deafened      bool     `json:"deaf"`
-	Mute          bool     `json:"mute"`
+	Muted         bool     `json:"mute"`
 	StillJoining  bool     `json:"pending"`                      // If the user is still on the Membership screening
 	Permissions   string   `json:"permissions"`                  // TODO: check if it's possible to juste replace with Permissions from the internal/enums.
 	TimedoutUntil string   `json:"communication_disabled_until"` // ISO8601 timestamp
@@ -89,6 +90,9 @@ func (gm GuildMember) Edit(Options EditGuildMemberOptions) (*GuildMember, error)
 		return nil, err
 	}
 	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
 	if res.StatusCode != 200 {
 		return nil, errors.New(string(res_body))
 	}
@@ -117,6 +121,167 @@ func (gm GuildMember) Kick(Reason ...string) error {
 			return err
 		}
 		return errors.New(string(body))
+	}
+	return nil
+}
+
+func (gm GuildMember) Timeout(Seconds int, Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	new_timeout := time.Now().Add(time.Second * time.Duration(Seconds))
+	Options := EditGuildMemberOptions{
+		TimeoutUntil: new_timeout.Format(time.RFC3339),
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		return errors.New(string(res_body))
+	}
+	return nil
+}
+
+func (gm GuildMember) Mute(Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	Options := EditGuildMemberOptions{
+		Muted: true,
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 400 {
+		return errors.New(string(res_body))
+	}
+	return nil
+}
+
+func (gm GuildMember) UnMute(Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	Options := EditGuildMemberOptions{
+		Muted: false,
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 400 {
+		return errors.New(string(res_body))
+	}
+	return nil
+}
+
+func (gm GuildMember) Deafen(Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	Options := EditGuildMemberOptions{
+		Deafened: true,
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 400 {
+		return errors.New(string(res_body))
+	}
+	return nil
+}
+
+func (gm GuildMember) UnDeafen(Reason ...string) error {
+	var reason string
+	if len(Reason) > 0 {
+		reason = Reason[0]
+	}
+	Options := EditGuildMemberOptions{
+		Deafened: false,
+	}
+	req_body, err := json.Marshal(Options)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("%s/guilds/%s/members/%s", API_URL, gm.Guild.ID, gm.User.ID), bytes.NewReader(req_body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
+	req.Header.Set("X-Audit-Log-Reason", reason)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	res_body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 400 {
+		return errors.New(string(res_body))
 	}
 	return nil
 }
