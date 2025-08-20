@@ -58,7 +58,7 @@ var emojiRanges = []unicode.RangeTable{
 
 type Message struct {
 	Base
-	Channel          TextChannel
+	Channel          Channel
 	ChannelID        string      `json:"channel_id"`
 	Author           User        `json:"author"`
 	Content          string      `json:"content"`
