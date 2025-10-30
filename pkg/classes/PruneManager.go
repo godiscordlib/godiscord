@@ -24,35 +24,35 @@ type BeginPruneOptions struct {
 	Reason string
 }
 
-func (pm PruneManager) GetCount(Options GetPruneCountOptions) (*int, error) {
+func (pm PruneManager) GetCount(Options GetPruneCountOptions) (int, error) {
 	req_body, err := json.Marshal(Options)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/guilds/%s/prune", API_URL, pm.Guild.ID), bytes.NewReader(req_body))
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	req.Header.Set("Authorization", os.Getenv("GODISCORD_TOKEN"))
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	defer res.Body.Close()
 	res_body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	if res.StatusCode != 200 {
-		return nil, errors.New(string(res_body))
+		return 0, errors.New(string(res_body))
 	}
 	var pruned struct {
 		Pruned int `json:"pruned"`
 	}
 	if err = json.Unmarshal(res_body, &pruned); err != nil {
-		return nil, err
+		return 0, err
 	}
-	return &pruned.Pruned, err
+	return pruned.Pruned, err
 }
 
 func (pm PruneManager) Begin(Options BeginPruneOptions) error {

@@ -18,11 +18,13 @@ const API_URL = "https://discord.com/api/v" + API_VERSION
 type Client struct {
 	*User
 	*EventManager
-	Intents   []types.GatewayIntent
-	ws        *WebSocket
-	wschannel chan webSocketPayload
-	readyChan chan struct{}
-	done      chan struct{}
+	Intents         []types.GatewayIntent
+	Uptime          time.Time
+	UptimeTimestamp int64
+	ws              *WebSocket
+	wschannel       chan webSocketPayload
+	readyChan       chan struct{}
+	done            chan struct{}
 	// guildCache map[string]Guild
 }
 
@@ -70,13 +72,15 @@ func (c *Client) Connect() error {
 						},
 						Username:      toString(userData["username"]),
 						Discriminator: toString(userData["discriminator"]),
-						AvatarHash:    toStringPtr(userData["avatar"]),
+						AvatarHash:    toString(userData["avatar"]),
 						Bot:           true,
-						Global_Name:   toStringPtr(userData["global_name"]),
-						Flags:         toIntPtr(userData["flags"]),
-						VerifiedBot:   toBoolPtr(userData["verified"]),
+						Global_Name:   toString(userData["global_name"]),
+						Flags:         userData["flags"].(int),
+						VerifiedBot:   userData["verified"].(bool),
 					}
 					close(c.readyChan)
+					c.Uptime = time.Now()
+					c.UptimeTimestamp = c.Uptime.Unix()
 					c.Emit("READY", c)
 				case "MESSAGE_CREATE":
 					var message Message
@@ -127,7 +131,7 @@ func (c *Client) Connect() error {
 						continue
 					}
 					var ptr_channel *Channel
-					if ptr_channel == nil {
+					if channel_int == nil {
 						ptr_channel = &Channel{}
 					}
 					ptr_channel = channel_int.(*Channel)
@@ -153,14 +157,15 @@ func (c *Client) Connect() error {
 				case "MESSAGE_REACTION_ADD":
 					var message Message
 					json.Unmarshal(payload.Data, &message)
-					ptr_channel, err := c.GetTextChannelByID(message.ChannelID)
+					ptr_channel, err := c.GetChannelByID(message.ChannelID)
 					if err != nil {
 						continue
 					}
 					if ptr_channel == nil {
-						ptr_channel = &TextChannel{}
+						ptr_channel = &Channel{}
 					}
-					message.Channel = *ptr_channel
+					channel := ptr_channel.(Channel)
+					message.Channel = channel
 					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 					if err != nil {
 						continue

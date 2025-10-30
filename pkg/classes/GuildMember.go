@@ -285,3 +285,15 @@ func (gm GuildMember) UnDeafen(Reason ...string) error {
 	}
 	return nil
 }
+
+/*
+Get the avatar URL of the member
+
+Type can either be "png", "jpg" or "gif"; defaults with png
+*/
+func (gm GuildMember) GetAvatarURL(Type string) string {
+	if Type == "" {
+		Type = "png"
+	}
+	return "https://cdn.discordapp.com/guilds/" + gm.GuildID + "/users/" + gm.User.ID + "/avatars/" + gm.AvatarHash + "." + Type
+}
