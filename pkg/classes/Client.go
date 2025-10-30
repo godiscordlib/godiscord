@@ -75,7 +75,7 @@ func (c *Client) Connect() error {
 						AvatarHash:    toString(userData["avatar"]),
 						Bot:           true,
 						Global_Name:   toString(userData["global_name"]),
-						Flags:         userData["flags"].(int),
+						Flags:         int((userData["flags"].(float64))),
 						VerifiedBot:   userData["verified"].(bool),
 					}
 					close(c.readyChan)
