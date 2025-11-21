@@ -120,7 +120,7 @@ func (c *Client) Connect() error {
 					if err != nil || channelPtr == nil {
 						channelPtr = nil
 					}
-					channel := channelPtr.(TextChannel)
+					channel := channelPtr.(Channel)
 					interaction.Channel = channel
 					c.Emit("INTERACTION_CREATE", interaction, c)
 				case "MESSAGE_UPDATE":
