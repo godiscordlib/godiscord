@@ -356,12 +356,8 @@ func (c Client) GetChannelByID(ID string) (ChannelInt, error) {
 		return nil, err
 	}
 	defer res.Body.Close()
-	var channel TextChannel
+	var channel Channel
 	json.Unmarshal(body_in_bytes, &channel)
-	if channel.Type != types.TextChannel {
-		return nil, fmt.Errorf("error: Channel is not a TextChannel")
-	}
-
 	guild, err := c.GetGuildByID(channel.GuildID)
 	if err != nil {
 		return nil, err
