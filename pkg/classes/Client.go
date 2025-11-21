@@ -89,12 +89,12 @@ func (c *Client) Connect() error {
 					if err != nil {
 						continue
 					}
-					var ptr_channel *Channel
+					var ptr_channel Channel
 					if channel_int == nil {
-						ptr_channel = &Channel{}
+						ptr_channel = Channel{}
 					}
-					ptr_channel = channel_int.(*Channel)
-					message.Channel = *ptr_channel
+					ptr_channel = channel_int.(Channel)
+					message.Channel = ptr_channel
 					ptr_owner, err := message.Channel.Guild.GetMemberByID(message.Channel.Guild.OwnerID)
 					if err != nil {
 						continue
