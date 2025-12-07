@@ -6,7 +6,7 @@ import (
 )
 
 type SlashCommandUserOption struct {
-	SlashCommandOptionInt
+	SlashCommandOption
 }
 
 func (scso SlashCommandUserOption) GetSCOType() types.SlashCommandOptionType {
