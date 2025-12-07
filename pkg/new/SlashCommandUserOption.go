@@ -7,7 +7,7 @@ import (
 
 func SlashCommandUserOption() classes.SlashCommandUserOption {
 	return classes.SlashCommandUserOption{
-		SlashCommandOptionInt: classes.SlashCommandOption{
+		SlashCommandOption: classes.SlashCommandOption{
 			Type: enums.SlashCommandOptionType.User,
 		},
 	}
