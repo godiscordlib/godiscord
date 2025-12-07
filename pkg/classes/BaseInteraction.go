@@ -1,6 +1,8 @@
 package classes
 
 import (
+	"fmt"
+
 	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/types"
 )
@@ -55,4 +57,17 @@ func (bi BaseInteraction) Resolved() resolvedData {
 	}
 
 	return *bi.Data.Resolved
+}
+
+func (bi BaseInteraction) GetUser(OptionName string) *User {
+	if len(*bi.Data.Options) == 0 {
+		return nil
+	}
+	for _, o := range *bi.Data.Options {
+		if *o.Name == OptionName {
+			fmt.Println(*o.Value)
+		}
+	}
+
+	return nil
 }

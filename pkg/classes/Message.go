@@ -72,6 +72,7 @@ type Message struct {
 	Pinned           bool        `json:"pinned"`
 	Type             int         `json:"type"`
 	Flags            int         `json:"flags"`
+	IsReply          bool
 	// TODO: Fix this
 	// ChannelMentions  []ChannelMention `json:"mention_channels"`
 }
