@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/types"
@@ -72,6 +73,7 @@ func (bi BaseInteraction) GetUser(OptionName string) *User {
 			if err != nil {
 				return nil
 			}
+			req.Header.Set("Authorization", "Bot "+os.Getenv("GODISCORD_TOKEN"))
 			res, err := http.DefaultClient.Do(req)
 			if err != nil {
 				return nil
