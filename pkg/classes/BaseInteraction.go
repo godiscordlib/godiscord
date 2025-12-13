@@ -1,7 +1,9 @@
 package classes
 
 import (
-	"fmt"
+	"encoding/json"
+	"io"
+	"net/http"
 
 	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/types"
@@ -65,7 +67,24 @@ func (bi BaseInteraction) GetUser(OptionName string) *User {
 	}
 	for _, o := range *bi.Data.Options {
 		if *o.Name == OptionName {
-			fmt.Println(*o.Value)
+			optionValue := *o.Value
+			req, err := http.NewRequest("GET", API_URL+"/users/"+optionValue.(string), nil)
+			if err != nil {
+				return nil
+			}
+			res, err := http.DefaultClient.Do(req)
+			if err != nil {
+				return nil
+			}
+			body, err := io.ReadAll(res.Body)
+			if err != nil {
+				return nil
+			}
+			var user User
+			if err = json.Unmarshal(body, &user); err != nil {
+				return nil
+			}
+			return &user
 		}
 	}
 
