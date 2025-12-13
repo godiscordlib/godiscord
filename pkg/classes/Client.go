@@ -122,6 +122,8 @@ func (c *Client) Connect() error {
 					}
 					channel := channelPtr.(Channel)
 					interaction.Channel = channel
+					guildPtr, _ := c.GetGuildByID(interaction.GuildID)
+					interaction.Guild = *guildPtr
 					c.Emit("INTERACTION_CREATE", interaction, c)
 				case "MESSAGE_UPDATE":
 					var message Message

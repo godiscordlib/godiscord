@@ -15,10 +15,11 @@ type BaseInteraction struct {
 	Token     string                        `json:"token"`
 	Member    GuildMember                   `json:"member"`
 	ID        string                        `json:"id"`
-	Guild     Guild                         `json:"guild"`
+	GuildID   string                        `json:"guild_id"`
 	Data      baseInteractionData           `json:"data"`
 	ChannelID string                        `json:"channel_id"`
 	Channel   ChannelInt
+	Guild     Guild
 }
 
 type baseInteractionData struct {
