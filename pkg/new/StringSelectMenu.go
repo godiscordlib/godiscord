@@ -7,9 +7,9 @@ import (
 
 func StringSelectMenu() classes.StringSelectMenu {
 	return classes.StringSelectMenu{
-		classes.BaseSelectMenu{
+		BaseSelectMenu: classes.BaseSelectMenu{
 			Type: enums.ComponentType.StringSelect,
 		},
-		[]classes.StringSelectOption{},
+		Options: []classes.StringSelectOption{},
 	}
 }

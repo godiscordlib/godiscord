@@ -7,7 +7,7 @@ import (
 
 func RoleSelectMenu() classes.RoleSelectMenu {
 	return classes.RoleSelectMenu{
-		classes.BaseSelectMenu{
+		BaseSelectMenu: classes.BaseSelectMenu{
 			Type: enums.ComponentType.RoleSelect,
 		},
 	}
