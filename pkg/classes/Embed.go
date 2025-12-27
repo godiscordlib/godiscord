@@ -3,32 +3,32 @@ package classes
 import "strconv"
 
 type Embed struct {
-	Title       string    `json:"title"`
-	Type        string    `json:"type"`
-	Description string    `json:"description"`
-	URL         string    `json:"url"`
-	Thumbnail   thumnbail `json:"thumbnail"`
-	Image       image     `json:"image"`
-	Timestamp   string    `json:"timestamp"` // ISO8601 timestamp
-	Color       int       `json:"color"`
-	Footer      footer    `json:"footer"`
-	Fields      []field   `json:"fields"`
+	Title       string         `json:"title"`
+	Type        string         `json:"type"`
+	Description string         `json:"description"`
+	URL         string         `json:"url"`
+	Thumbnail   EmbedThumbnail `json:"thumbnail"`
+	Image       EmbedImage     `json:"image"`
+	Timestamp   string         `json:"timestamp"` // ISO8601 timestamp
+	Color       int            `json:"color"`
+	Footer      EmbedFooter    `json:"footer"`
+	Fields      []EmbedField   `json:"fields"`
 }
-type thumnbail struct {
+type EmbedThumbnail struct {
 	URL    string `json:"url"`
 	Height int    `json:"height"`
 	Width  int    `json:"width"`
 }
-type image struct {
+type EmbedImage struct {
 	URL    string `json:"url"`
 	Height int    `json:"height"`
 	Width  int    `json:"width"`
 }
-type footer struct {
+type EmbedFooter struct {
 	Text    string `json:"text"`
 	IconURL string `json:"icon_url"`
 }
-type field struct {
+type EmbedField struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
 	Inline bool   `json:"inline"`
@@ -60,25 +60,25 @@ func (e Embed) SetColor(HexColor string) Embed {
 	e.Color = int(color_in_int)
 	return e
 }
-func (e Embed) SetFooter(Text, IconURL string) Embed {
-	e.Footer.IconURL = IconURL
-	e.Footer.Text = Text
+func (e Embed) SetFooter(FooterConfig EmbedFooter) Embed {
+	e.Footer.IconURL = FooterConfig.IconURL
+	e.Footer.Text = FooterConfig.Text
 	return e
 }
 func (e Embed) AddField(Name, Value string, Inline bool) Embed {
-	e.Fields = append(e.Fields, field{Name: Name, Value: Value, Inline: Inline})
+	e.Fields = append(e.Fields, EmbedField{Name: Name, Value: Value, Inline: Inline})
 	return e
 }
-func (e Embed) SetThumbnail(URL string, Height, Width int) Embed {
-	e.Thumbnail.URL = URL
-	e.Thumbnail.Height = Height
-	e.Thumbnail.Width = Width
+func (e Embed) SetThumbnail(ThumbnailConfig EmbedThumbnail) Embed {
+	e.Thumbnail.URL = ThumbnailConfig.URL
+	e.Thumbnail.Height = ThumbnailConfig.Height
+	e.Thumbnail.Width = ThumbnailConfig.Width
 	return e
 }
 
-func (e Embed) SetImage(URL string, Height, Width int) Embed {
-	e.Image.URL = URL
-	e.Image.Height = Height
-	e.Image.Width = Width
+func (e Embed) SetImage(ImageConfig EmbedImage) Embed {
+	e.Image.URL = ImageConfig.URL
+	e.Image.Height = ImageConfig.Height
+	e.Image.Width = ImageConfig.Width
 	return e
 }
