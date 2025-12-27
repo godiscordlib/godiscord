@@ -93,3 +93,16 @@ func (bi BaseInteraction) GetUser(OptionName string) *User {
 
 	return nil
 }
+
+func (bi BaseInteraction) GetInteger(OptionName string) *int {
+	if len(*bi.Data.Options) == 0 {
+		return nil
+	}
+	for _, o := range *bi.Data.Options {
+		if *o.Name == OptionName {
+			optionValue := *o.Value
+			return optionValue.(*int)
+		}
+	}
+	return nil
+}
