@@ -100,8 +100,10 @@ func (bi BaseInteraction) GetInteger(OptionName string) *int {
 	}
 	for _, o := range *bi.Data.Options {
 		if *o.Name == OptionName {
-			optionValue := *o.Value
-			return optionValue.(*int)
+			optionValue_ptr := *o.Value
+			optionValue_float64 := optionValue_ptr.(*float64)
+			optionValue_as_int := int(*optionValue_float64)
+			return &optionValue_as_int
 		}
 	}
 	return nil
