@@ -28,10 +28,11 @@ import (
 	"github.com/godiscordlib/godiscord/pkg/classes"
 	"github.com/godiscordlib/godiscord/pkg/enums"
 	"github.com/godiscordlib/godiscord/pkg/slash"
+	"github.com/godiscordlib/godiscord/pkg/new"
 )
 
 func main() {
-	Client := classes.NewClient(
+	Client := new.Client(
 		os.Getenv("DISCORD_TOKEN"),
 		enums.GatewayIntent.Guilds,
 		enums.GatewayIntent.GuildMembers,
@@ -65,10 +66,10 @@ func main() {
 
 	Client.On("INTERACTION_CREATE", func(args ...any) {
 		interaction := args[0].(classes.BaseInteraction)
-		if interaction.Data.Name == "ping" {
+		if interaction.GetName() == "ping" {
 			interaction.Reply(classes.MessageData{
 				Embeds: []classes.Embed{
-					classes.NewEmbed().SetDescription(fmt.Sprintf("🏓 **%d**ms", Client.GetWSPing())).SetColor("00ADD8"),
+					new.Embed().SetDescription(fmt.Sprintf("🏓 **%d**ms", Client.GetWSPing())).SetColor("00ADD8"),
 				},
 			})
 		}
