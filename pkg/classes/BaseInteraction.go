@@ -21,7 +21,6 @@ type BaseInteraction struct {
 	Channel   ChannelInt
 	Guild     Guild
 }
-
 type baseInteractionData struct {
 	Type          int                    `json:"type"`
 	Name          *string                `json:"name"`
@@ -41,6 +40,14 @@ type BaseComponent interface {
 
 func (bi BaseInteraction) GetName() string {
 	if bi.Type != enums.InteractionResponseType.ApplicationCommand {
+		return ""
+	}
+
+	return *bi.Data.Name
+}
+
+func (bi BaseInteraction) GetCustomID() string {
+	if bi.Type != enums.InteractionResponseType.MessageComponent || bi.Type != enums.InteractionResponseType.ModalSubmit {
 		return ""
 	}
 
